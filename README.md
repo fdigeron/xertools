@@ -39,7 +39,7 @@ v build filename.v
 ```
 Alternatively, if you don't have git installed:
 
-1. Download the bundled source [here](https://github.com/chipnetics/xertools/archive/refs/heads/master.zip)
+1. Download the bundled source [here](https://github.com/chipnetics/xertools/archive/refs/heads/main.zip)
 2. Unzip to a local directory
 3. Navigate to src directory and run `v build filename.v`
 
