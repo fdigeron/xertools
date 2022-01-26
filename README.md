@@ -20,7 +20,7 @@ With git, you can download all the latest source and binaries with `git clone ht
 
 Alternatively, if you don't have git installed:
 
-1. Download the latest release [here](https://github.com/chipnetics/xertools/archive/refs/heads/main.zip)
+1. Download the latest release [here](https://github.com/chipnetics/xertools/releases)
 2. Unzip to a local directory.
 3. Navigate to 'bin' directory for executables.
 
