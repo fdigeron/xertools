@@ -50,7 +50,9 @@ fn main()
 	// Print appropriate Header
 	if full_output
 	{
-		file_out.writeln("xer_1\txer_2\taction\tstmt\t" + xer.task_header) ?
+		header := xer.task_header().split("\t")
+		file_out.writeln("xer_1\txer_2\taction\tstmt\t" + 
+											xer.array_to_tab(header[1..])) ?
 	}
 	else
 	{
@@ -72,8 +74,8 @@ fn main()
 		xer_1 := xer.parse_task(xer_files[index])
 		xer_2 := xer.parse_task(xer_files[index+1])
 
-		xer_1_keys := xer_1.xer_map.keys()
-		xer_2_keys := xer_2.xer_map.keys()
+		xer_1_keys := xer_1.keys()
+		xer_2_keys := xer_2.keys()
 
 		mut row_str := ""
 
@@ -81,7 +83,7 @@ fn main()
 		{
 			if !xer_2_keys.contains(i)
 			{
-				task_array := xer_1.xer_map[i].xer_task_array()
+				task_array := xer_1[i].to_array()
 
 				if full_output
 				{
@@ -102,7 +104,7 @@ fn main()
 		{
 			if !xer_1_keys.contains(i)
 			{
-				task_array := xer_2.xer_map[i].xer_task_array()
+				task_array := xer_2[i].to_array()
 
 				if full_output
 				{

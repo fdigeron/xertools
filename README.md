@@ -100,4 +100,67 @@ _No optional arguments at this time._
 
 ----
 
+## XER Task
+### bin/xertask.exe 
+>  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.
+
+**Input:** One or more .xer files, in the same directory as xertask.exe
+
+**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.
+
+**Optional Command Line Arguments** 
+
+```  
+Options:
+  -p, --pivot <string>      comma-separated list of pivot indexes.
+  -h, --header <string>     comma-separated list of header indexes.
+  -m, --mapping             print XER TASK header with indexes.
+  -h, --help                display this help and exit
+  --version                 output version information and exit
+```  
+**Examples:**
+
+> To get a list of all the available columns to select in your query:
+
+`xertask.exe --mapping`
+
+>To get an output of {late,early,target}_{start,end}_dates:
+
+`xertask.exe -p 1,14,15,70,75 -h 30,31,33,34,37,38`
+
+Would output the columns 
+- xer_filename
+- task_id
+- task_code
+- task_name
+- clndr_name
+- day_hr_cnt
+
+Along with two additional columns of the unpivot header and values for
+- late_start_date
+- late_end_date
+- early_start_date
+- early_end_date
+- target_start_date
+- target_end_date
+
+> To get an output of {total,free}_float_hr_cnt
+
+`xertask.exe -p 1,14,15,70,75 -h 17-18`
+
+Would output the columns 
+- xer_filename
+- task_id
+- task_code
+- task_name
+- clndr_name
+- day_hr_cnt
+
+Along with two additional columns of the unpivot header and values for
+
+- total_float_hr_cnt
+- free_float_hr_cnt
+
+----
+
 
