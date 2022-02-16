@@ -50,9 +50,8 @@ Please see the [V language documentation](https://github.com/vlang/v/blob/master
 For Windows users, if you want to pass optional command line arguments to an executable:
 
 1. Navigate to the directory of the utility.
-2. Hold Shift + Right Mouse Click.
-3. Select "Open PowerShell Window Here".
-4. Type the name of the exe along with the optional argument (i.e. `./utilityname.exe --full` ).
+2. In Windows Explorer type 'cmd' into the path navigation bar.
+3. Type the name of the exe along with the optional argument (i.e. `utilityname.exe --help` ).
 
 # Date Conventions
 
@@ -102,23 +101,24 @@ _No optional arguments at this time._
 
 ## XER Task
 ### bin/xertask.exe 
->  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.
+>  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.  Can also perform a detailed analysis on the XER TASK table.
 
 **Input:** One or more .xer files, in the same directory as xertask.exe
 
-**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.
+**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data.
 
 **Optional Command Line Arguments** 
 
 ```  
 Options:
-  -p, --pivot <string>      comma-separated list of pivot indexes.
-  -h, --header <string>     comma-separated list of header indexes.
-  -m, --mapping             print XER TASK header with indexes.
+  -p, --pivot <string>      specify list of pivot indexes
+  -h, --header <string>     specify list of header indexes
+  -m, --mapping             output available columns (with indexes)
+  -a, --analytics           perform analytics on latest TASK table
   -h, --help                display this help and exit
   --version                 output version information and exit
 ```  
-**Examples:**
+**Examples using pivot (-p), header (-h), and mapping (-m) flags:**
 
 > To get a list of all the available columns to select in your query:
 
@@ -160,6 +160,44 @@ Along with two additional columns of the unpivot header and values for
 
 - total_float_hr_cnt
 - free_float_hr_cnt
+
+**Examples using analytics (-a) flag:**
+
+`xertask.exe -a`
+
+> Analytics flag will output the following columns, with the below definitions
+
+| Analytics Column      | Description |
+| ----------- | ----------- |
+| xer_filename      | Filename of XER the analysis is upon       |
+| proj_id   | Line item project ID        |
+| task_code   | Line item task code  |
+| task_name   | Line item task name  |
+| task_type   | Line item task type  |
+| last_recalc   | Line item last re-calc date (from PROJECT table)        |
+| is_active   | True if last_recalc between curr_start & curr_finish        |
+| curr_duration_days   | curr_start *less* curr_finish        |
+| curr_start   | Line item target start date        |
+| curr_finish   | Line item target end date        |
+| prev_appears   | Filename of previous XER that line item appears in       |
+| prev_duration_days   | Previous curr_start *less* curr_finish        |
+| prev_start   | Previous line item target start date        |
+| prev_finish   | Previous line item target end date        |
+| ini_appears   | Filename of initial XER that line item appears in        |
+| ini_duration_days   | Initial curr_start *less* curr_finish |
+| ini_start   | Initial line item target start date        |
+| ini_finish   | Initial line item target end date        |
+| snap_dur_growth_days   |   curr_duration_days *less* prev_duration_days     |
+| snap_start_delta_days   | curr_start *less*  prev_start      |
+| snap_end_delta_days   | curr_finish *less* prev_finish        |
+| snap_has_delta   | True if  snap_start_delta_days > 0 or snap_end_delta_days > 0   |
+| total_start_delta_days   | curr_start *less* ini_start        |
+| total_end_delta_days   | curr_finish *less*  ini_finish       |
+| total_dur_growth   | curr_duration_days *less* ini_duration_days        |
+| is_completed   | True if phys_complete_pct = 100        |
+| snap_completed   | True if is-completed and previous phys_complete_pct < 100   |
+| realized_duration   | Final curr_duration_days when is_completed = true        |
+| realized_accuracy   | curr_duration_days *divided by* ini_duration_days        |
 
 ----
 
