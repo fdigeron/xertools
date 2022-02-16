@@ -101,7 +101,7 @@ _No optional arguments at this time._
 
 ## XER Task
 ### bin/xertask.exe 
->  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.  Can also perform a detailed analysis on the XER TASK table.
+>  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.  This tool can also perform a detailed analysis on the XER TASK table as an alternative mode of operation.
 
 **Input:** One or more .xer files, in the same directory as xertask.exe
 
