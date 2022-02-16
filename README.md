@@ -105,7 +105,7 @@ _No optional arguments at this time._
 
 **Input:** One or more .xer files, in the same directory as xertask.exe
 
-**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data.
+**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to standard output (stdout).
 
 **Optional Command Line Arguments** 
 
