@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file. Do not remove this header.
 import os
 import flag
+import xer
 
 fn main()
 {
@@ -21,8 +22,12 @@ fn main()
 
     mut xer_arg := fp.string('xer', `f`, "", 
 								'specify the XER for analysis')
+	mut minimal_output_arg := fp.bool('minimal', `m`, false, 
+								'output only task-id records')
+	mut max_levels_arg := fp.int('depth', `d`, 5, 
+	'specify max predecessor depth [default:5]')
 								
-
+								
 	additional_args := fp.finalize() or {
         eprintln(err)
         println(fp.usage())
@@ -71,25 +76,47 @@ fn main()
 
 	for key,mut value in pred_map
 	{
-		recurse(mut tree_arr,pred_map,key, key,value,0)
+		recurse(mut tree_arr,pred_map,key, key,value,0,max_levels_arg)
 	}
 
 	tree_arr.sort(b.concat > a.concat)
 
-	for elem in tree_arr
+	mut task_items := map[string] xer.XER_task
+	if !minimal_output_arg
 	{
-		println("${elem.task_id}\t${elem.depth}\t${elem.parent_node}\t${elem.child_node}")
+		task_items = xer.parse_task_idkey(xer_arg)
 	}
 
+	for elem in tree_arr
+	{
+		
+		print("${elem.task_id}\t${elem.depth}\t${elem.parent_node}\t${elem.child_node}")
+
+		if minimal_output_arg
+		{
+			println("")
+		}
+		else
+		{
+			print("\t\
+				 ${task_items[elem.task_id].task_code}\t\
+				 ${task_items[elem.task_id].task_name}\t\
+				 ${task_items[elem.parent_node].task_code}\t\
+				 ${task_items[elem.parent_node].task_name}\t\
+				 ${task_items[elem.child_node].task_code}\t\
+				 ${task_items[elem.child_node].task_name}\t\
+				 \n")
+			}
+	}
 }
 
-fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent string,children []string,levels int)
+fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent string,children []string,levels int,max_levels int)
 {
 	if children.len==1 || children.len==0
 	{
 		return
 	}
-	if levels == 5
+	if levels == max_levels
 	{
 		return
 	}
@@ -106,7 +133,7 @@ fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent
 		a_tree.child_node = elem
 		tree << a_tree
 
-		recurse(mut tree,pred_map, root_key, elem, pred_map[elem],levels+1)
+		recurse(mut tree,pred_map, root_key, elem, pred_map[elem],levels+1,max_levels)
 	}
 }
 
@@ -119,3 +146,5 @@ struct Tree
 	parent_node string
 	child_node string
 }
+
+

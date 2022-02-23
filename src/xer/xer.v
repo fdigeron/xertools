@@ -45,6 +45,47 @@ pub fn parse_task(xer_file string) map[string]XER_task
 	return xer_table
 }
 
+pub fn parse_task_idkey(xer_file string) map[string]XER_task
+{
+	lines := os.read_lines(xer_file) or {panic(err)}
+	mut line_index := 0
+	mut delimited_row := []string{}
+	mut xer_table := map[string]XER_task{}
+
+	for line in lines
+	{
+		line_index++
+		if compare_strings(line,"%T\tTASK") == 0
+		{
+			line_index++ // Skip header.
+			for i:=line_index; i<lines.len; i++
+			{
+				if lines[i].starts_with("%T")
+				{
+					return xer_table
+				}
+				delimited_row = lines[i].split("\t")
+				
+				mut xer_struct := XER_task{}
+				mut loop := 0
+				$for field in XER_task.fields // Reflection
+				{
+					$if field.typ is string // Required check for compiler.
+					{
+						xer_struct.$(field.name) = delimited_row[loop]
+						loop++
+					}
+				}
+				xer_struct.xer_filename = xer_file
+
+				// Map index of task_code, assigned to struct
+				xer_table[delimited_row[1]] = xer_struct 
+			}
+		}
+	}
+	return xer_table
+}
+
 pub fn parse_project(xer_file string) map[string]XER_project
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
