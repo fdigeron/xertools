@@ -87,6 +87,18 @@ fn main()
 		task_items = xer.parse_task_idkey(xer_arg)
 	}
 
+	// Print output Header....
+	print("node\tdepth\tparent\tchild")
+	if minimal_output_arg
+	{
+		println("")
+	}
+	else
+	{
+		print("\tnode_task_code\tnode_task_name\tparent_task_code\tparent_task_name\tchild_task_code\tchild_task_name\n")
+	}
+
+
 	for elem in tree_arr
 	{
 		
@@ -104,7 +116,7 @@ fn main()
 				 ${task_items[elem.parent_node].task_code}\t\
 				 ${task_items[elem.parent_node].task_name}\t\
 				 ${task_items[elem.child_node].task_code}\t\
-				 ${task_items[elem.child_node].task_name}\t\
+				 ${task_items[elem.child_node].task_name}\
 				 \n")
 			}
 	}
