@@ -201,4 +201,36 @@ Along with two additional columns of the unpivot header and values for
 
 ----
 
+## XER Predecessors
+### bin/xerpred.exe 
+>  Tool that will output a list of every task code with all its predecessors, descending recursively to the specified depth.  For instance if activity A has predecessors B and C; the tool will continue to show the predecessors of B and C (say D, E, F), and then the predecessors of D,E,F - continuing on and on until there are none left to process.  _As complex and long schedules can lead to very large file sizes, you can specify the depth limit to process up until._
 
+>This tool can also output the list of schedule drivers; such as those indicated by the "Driver" flag in the relationships table in P6.
+
+**Input:** One .xer files, in the same directory as xerpred.exe
+
+**Output:** Outputs to standard output the complete list of predecessors to the specified depth level [default depth of 5].  Or in drivers mode (specified with -d flag), will output the list of schedule drivers to standard output (stdout).
+
+**Optional Command Line Arguments** 
+
+```  
+Options:
+  -f, --xer <string>        specify the XER for analysis
+  -m, --minimal             output only task-id records
+  -l, --depth <int>         specify max predecessor depth [default:5]
+  -d, --drivers             output schedule drivers and exit
+  -h, --help                display this help and exit
+  --version                 output version information and exit
+```  
+**Basic example with full output**
+
+`xerpred.exe -f myprojectschedule.xer`
+
+**Example with minimal output**
+> Useful when you intend to join the results with other data tables, such as those from xerdump.exe, to minimize redundancy.
+
+`xerpred.exe -f myprojectschedule.xer --minimal`
+
+**Example of outputting the schedule drivers only**
+
+`xerpred.exe -f myprojectschedule.xer --drivers`

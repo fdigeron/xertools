@@ -146,39 +146,127 @@ fn print_drivers(xer_file string)
 		driver_map[value.task_id] << a_driver
 	}
 
-	println("task_id\tdriver_id\ttask_code\ttask_name\tdriver_code\tdriver_name\tpred_type")
+
+	println("task_id\t\
+						driver_id\t\
+						pred_type\t\
+						task_code\t\
+						task_name\t\
+						driver_code\t\
+						driver_name\t\
+						pred_early_start\t\
+						pred_early_end\t\
+						pred_late_start\t\
+						pred_late_end\t\
+						succ_early_start\t\
+						succ_early_end\t\
+						succ_late_start\t\
+						succ_late_end\t\
+						rel_early_finish\t\
+						rel_late_start\t\
+						rel_free_float\
+				")
+
+	// key is the task_id in pred_map
+	// key is the successor, 
+	// value is []Drivers, are the predeccessors
 	for key,mut value in driver_map
 	{
+		driver_threshold := 96
 		// value is []Drivers
-		mut calc_date := ""
 		for elem in value
 		{
-			if compare_strings(elem.pred_type,"PR_FS")==-0 || compare_strings(elem.pred_type,"PR_SS")==0
+			mut rel_free_float := 0.00
+			mut is_driver := false
+
+			if compare_strings(elem.pred_type,"PR_FS")==0
 			{
-				calc_date = task_items[key].early_start_date
+				// Worst case float is relationship early finish less pred late start....
+				dc4 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+				dc3 := time.parse("${task_items[elem.pred_task_id].late_start_date}:00") or {time.Time{}}
+				rel_free_float = (dc4 - dc3).hours()
+
+				//Otherwise... early date of successor less relationship early finish
+				if rel_free_float > driver_threshold || rel_free_float < 0
+				{
+					dc9 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
+					dc10 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					rel_free_float = (dc9 - dc10).hours()
+				}
 			}
-			else
+			else if compare_strings(elem.pred_type,"PR_SS")==0
 			{
-				//calc_date = task_items[key].early_end_date
-				calc_date = task_items[key].early_start_date
+				// Worst case float is relationship early finish less pred late start....
+				dc4 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+				dc3 := time.parse("${task_items[elem.pred_task_id].late_start_date}:00") or {time.Time{}}
+				rel_free_float = (dc4 - dc3).hours()
+
+				//Otherwise... early date of successor less relationship early finish
+				if rel_free_float > driver_threshold || rel_free_float < 0
+				{
+					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					rel_free_float = (dc12 - dc13).hours()
+
+				}
+			}
+			else if compare_strings(elem.pred_type,"PR_SF")==0
+			{
+				dc7 := time.parse("${task_items[elem.pred_task_id].early_start_date}:00") or {time.Time{}}
+				dc8 := time.parse("${task_items[key].early_end_date}:00") or {time.Time{}}
+				rel_free_float = (dc8 - dc7).hours()
+
+				//Otherwise... early date of successor less relationship early finish
+				if rel_free_float > driver_threshold || rel_free_float < 0
+				{
+					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					rel_free_float = (dc12 - dc13).hours()
+
+				}
+			}
+			else if compare_strings(elem.pred_type,"PR_FF")==0
+			{
+				dc7 := time.parse("${task_items[elem.pred_task_id].early_end_date}:00") or {time.Time{}}
+				dc8 := time.parse("${task_items[key].early_end_date}:00") or {time.Time{}}
+				rel_free_float = (dc8 - dc7).hours()
+
+				//Otherwise... early date of successor less relationship early finish
+				if rel_free_float > driver_threshold || rel_free_float < 0
+				{
+					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					rel_free_float = (dc12 - dc13).hours()
+
+				}
 			}
 
-			early_date_of_succ := time.parse("$calc_date:00") or 
-						{time.Time{}}
-			relation_early_finish := time.parse("${elem.early_finish}:00") or 
-						{time.Time{}}
-			relation_free_float := (early_date_of_succ - relation_early_finish).hours()
-
-			if relation_free_float ==0
+			if rel_free_float < driver_threshold && rel_free_float >= 0 
+			{ 
+				is_driver = true 
+			}
+			
+			//$is_driver\t\
+			if is_driver
 			{
 				println("$key\t\
 						${elem.pred_task_id}\t\
+						${elem.pred_type}\t\
 						${task_items[key].task_code}\t\
 						${task_items[key].task_name}\t\
 						${task_items[elem.pred_task_id].task_code}\t\
 						${task_items[elem.pred_task_id].task_name}\t\
-						${elem.pred_type}
-						")
+						${task_items[elem.pred_task_id].early_start_date}\t\
+						${task_items[elem.pred_task_id].early_end_date}\t\
+						${task_items[elem.pred_task_id].late_start_date}\t\
+						${task_items[elem.pred_task_id].late_end_date}\t\
+						${task_items[key].early_start_date}\t\
+						${task_items[key].early_end_date}\t\
+						${task_items[key].late_start_date}\t\
+						${task_items[key].late_end_date}\t\
+						${elem.early_finish}\t\
+						${elem.late_start}\t\
+						$rel_free_float")
 			}
 		}
 	}
