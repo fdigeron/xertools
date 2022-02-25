@@ -4,6 +4,7 @@
 import os
 import flag
 import xer
+import time
 
 fn main()
 {
@@ -24,10 +25,11 @@ fn main()
 								'specify the XER for analysis')
 	mut minimal_output_arg := fp.bool('minimal', `m`, false, 
 								'output only task-id records')
-	mut max_levels_arg := fp.int('depth', `d`, 5, 
+	mut max_levels_arg := fp.int('depth', `l`, 5, 
 	'specify max predecessor depth [default:5]')
-								
-								
+	mut drivers_arg := fp.bool('drivers', `d`, false, 
+	'output schedule drivers and exit')
+										
 	additional_args := fp.finalize() or {
         eprintln(err)
         println(fp.usage())
@@ -43,6 +45,11 @@ fn main()
 		exit(0)
 		return
 	}		
+
+	if drivers_arg
+	{
+		print_drivers(xer_arg)
+	}
 
 	lines := os.read_lines(xer_arg) or {panic(err)}
 		
@@ -122,6 +129,73 @@ fn main()
 	}
 }
 
+fn print_drivers(xer_file string)
+{
+	task_items := xer.parse_task_idkey(xer_file)
+	pred_items := xer.parse_pred(xer_file)
+
+	mut driver_map := map[string][]Drivers{}
+
+	for _,value in pred_items
+	{
+		mut a_driver := Drivers{}
+		a_driver.pred_task_id = value.pred_task_id
+		a_driver.pred_type = value.pred_type
+		a_driver.early_finish = value.aref
+		a_driver.late_start = value.arls
+		driver_map[value.task_id] << a_driver
+	}
+
+	println("task_id\tdriver_id\ttask_code\ttask_name\tdriver_code\tdriver_name\tpred_type")
+	for key,mut value in driver_map
+	{
+		// value is []Drivers
+		mut calc_date := ""
+		for elem in value
+		{
+			if compare_strings(elem.pred_type,"PR_FS")==-0 || compare_strings(elem.pred_type,"PR_SS")==0
+			{
+				calc_date = task_items[key].early_start_date
+			}
+			else
+			{
+				//calc_date = task_items[key].early_end_date
+				calc_date = task_items[key].early_start_date
+			}
+
+			early_date_of_succ := time.parse("$calc_date:00") or 
+						{time.Time{}}
+			relation_early_finish := time.parse("${elem.early_finish}:00") or 
+						{time.Time{}}
+			relation_free_float := (early_date_of_succ - relation_early_finish).hours()
+
+			if relation_free_float ==0
+			{
+				println("$key\t\
+						${elem.pred_task_id}\t\
+						${task_items[key].task_code}\t\
+						${task_items[key].task_name}\t\
+						${task_items[elem.pred_task_id].task_code}\t\
+						${task_items[elem.pred_task_id].task_name}\t\
+						${elem.pred_type}
+						")
+			}
+		}
+	}
+
+	exit(0)
+}
+
+struct Drivers
+{
+	mut:
+		pred_task_id string
+		pred_type string
+		early_finish string
+		late_start string
+}
+
+
 fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent string,children []string,levels int,max_levels int)
 {
 	if children.len==1 || children.len==0
@@ -158,5 +232,3 @@ struct Tree
 	parent_node string
 	child_node string
 }
-
-

@@ -128,6 +128,47 @@ pub fn parse_project(xer_file string) map[string]XER_project
 	return xer_table
 }
 
+pub fn parse_pred(xer_file string) map[string]XER_pred
+{
+	lines := os.read_lines(xer_file) or {panic(err)}
+	mut line_index := 0
+	mut delimited_row := []string{}
+	mut xer_table := map[string]XER_pred{}
+
+	for line in lines
+	{
+		line_index++
+		if compare_strings(line,"%T\tTASKPRED") == 0
+		{
+			line_index++ // Skip header.
+			for i:=line_index; i<lines.len; i++
+			{
+				if lines[i].starts_with("%T")
+				{
+					return xer_table
+				}
+				delimited_row = lines[i].split("\t")
+				
+				mut xer_struct := XER_pred{}
+				mut loop := 0
+				$for field in XER_pred.fields // Reflection
+				{
+					$if field.typ is string // Required check for compiler.
+					{
+						xer_struct.$(field.name) = delimited_row[loop]
+						loop++
+					}
+				}
+				xer_struct.xer_filename = xer_file
+
+				// Map index of task_code, assigned to struct
+				xer_table[delimited_row[1]] = xer_struct 
+			}
+		}
+	}
+	return xer_table
+}
+
 pub fn parse_calendar(xer_file string) map[string]XER_calendar
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -327,6 +368,22 @@ struct XER_calendar
 		year_hr_cnt string
 		rsrc_private string
 		clndr_data string
+}
+
+struct XER_pred
+{
+	pub mut:
+		xer_filename string
+		task_pred_id string
+		task_id string
+		pred_task_id string
+		proj_id string
+		pred_proj_id string
+		pred_type string
+		lag_hr_cnt string
+		float_path string
+		aref string
+		arls string
 }
 
 struct XER_task
