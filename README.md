@@ -222,12 +222,18 @@ Options:
   -h, --help                display this help and exit
   --version                 output version information and exit
 ```  
-**Basic example with full output**
+**Basic example with full output, and no depth specified (default of 5)**
 
 `xerpred.exe -f myprojectschedule.xer`
 
+**Basic example with full output, and depth of 10**
+
+>Note that file sizes can start to get large at this depth...
+
+`xerpred.exe -f myprojectschedule.xer --depth 10`
+
 **Example with minimal output**
-> Useful when you intend to join the results with other data tables, such as those from xerdump.exe, to minimize redundancy.
+> Useful when you intend to join the results with other data tables, such as those from xerdump.exe, to minimize disk space usage.
 
 `xerpred.exe -f myprojectschedule.xer --minimal`
 
