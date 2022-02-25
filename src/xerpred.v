@@ -106,10 +106,10 @@ fn main()
 	}
 
 
-	for elem in tree_arr
+	for pred in tree_arr
 	{
 		
-		print("${elem.task_id}\t${elem.depth}\t${elem.parent_node}\t${elem.child_node}")
+		print("${pred.task_id}\t${pred.depth}\t${pred.parent_node}\t${pred.child_node}")
 
 		if minimal_output_arg
 		{
@@ -118,12 +118,12 @@ fn main()
 		else
 		{
 			print("\t\
-				 ${task_items[elem.task_id].task_code}\t\
-				 ${task_items[elem.task_id].task_name}\t\
-				 ${task_items[elem.parent_node].task_code}\t\
-				 ${task_items[elem.parent_node].task_name}\t\
-				 ${task_items[elem.child_node].task_code}\t\
-				 ${task_items[elem.child_node].task_name}\
+				 ${task_items[pred.task_id].task_code}\t\
+				 ${task_items[pred.task_id].task_name}\t\
+				 ${task_items[pred.parent_node].task_code}\t\
+				 ${task_items[pred.parent_node].task_name}\t\
+				 ${task_items[pred.child_node].task_code}\t\
+				 ${task_items[pred.child_node].task_name}\
 				 \n")
 			}
 	}
@@ -134,16 +134,16 @@ fn print_drivers(xer_file string)
 	task_items := xer.parse_task_idkey(xer_file)
 	pred_items := xer.parse_pred(xer_file)
 
-	mut driver_map := map[string][]Drivers{}
+	mut relation_map := map[string][]Relation{}
 
 	for _,value in pred_items
 	{
-		mut a_driver := Drivers{}
-		a_driver.pred_task_id = value.pred_task_id
-		a_driver.pred_type = value.pred_type
-		a_driver.early_finish = value.aref
-		a_driver.late_start = value.arls
-		driver_map[value.task_id] << a_driver
+		mut a_relation := Relation{}
+		a_relation.pred_task_id = value.pred_task_id
+		a_relation.pred_type = value.pred_type
+		a_relation.early_finish = value.aref
+		a_relation.late_start = value.arls
+		relation_map[value.task_id] << a_relation
 	}
 
 
@@ -167,77 +167,77 @@ fn print_drivers(xer_file string)
 						rel_free_float\
 				")
 
-	// key is the task_id in pred_map
-	// key is the successor, 
-	// value is []Drivers, are the predeccessors
-	for key,mut value in driver_map
+	// key is the task_id in relation_map, so key is the successor, 
+	// value is []Relation, are the relations
+	for key,mut value in relation_map
 	{
 		driver_threshold := 96
 		// value is []Drivers
-		for elem in value
+		for rel in value
 		{
 			mut rel_free_float := 0.00
 			mut is_driver := false
+			succ := task_items[key]
+			pred := task_items[rel.pred_task_id]
 
-			if compare_strings(elem.pred_type,"PR_FS")==0
+			if compare_strings(rel.pred_type,"PR_FS")==0
 			{
 				// Worst case float is relationship early finish less pred late start....
-				dc4 := time.parse("${elem.early_finish}:00") or {time.Time{}}
-				dc3 := time.parse("${task_items[elem.pred_task_id].late_start_date}:00") or {time.Time{}}
-				rel_free_float = (dc4 - dc3).hours()
+				 dc4 := time.parse("${rel.early_finish}:00") or {time.Time{}}
+				 dc3 := time.parse("${pred.late_start_date}:00") or {time.Time{}}
+				 rel_free_float = (dc4 - dc3).hours()
 
 				//Otherwise... early date of successor less relationship early finish
 				if rel_free_float > driver_threshold || rel_free_float < 0
 				{
-					dc9 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
-					dc10 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					dc9 := time.parse("${succ.early_start_date}:00") or {time.Time{}}
+					dc10 := time.parse("${rel.early_finish}:00") or {time.Time{}}
 					rel_free_float = (dc9 - dc10).hours()
 				}
 			}
-			else if compare_strings(elem.pred_type,"PR_SS")==0
+			else if compare_strings(rel.pred_type,"PR_SS")==0
 			{
 				// Worst case float is relationship early finish less pred late start....
-				dc4 := time.parse("${elem.early_finish}:00") or {time.Time{}}
-				dc3 := time.parse("${task_items[elem.pred_task_id].late_start_date}:00") or {time.Time{}}
+				dc4 := time.parse("${rel.early_finish}:00") or {time.Time{}}
+				dc3 := time.parse("${pred.late_start_date}:00") or {time.Time{}}
 				rel_free_float = (dc4 - dc3).hours()
 
 				//Otherwise... early date of successor less relationship early finish
 				if rel_free_float > driver_threshold || rel_free_float < 0
 				{
-					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
-					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					dc12 := time.parse("${succ.early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${rel.early_finish}:00") or {time.Time{}}
 					rel_free_float = (dc12 - dc13).hours()
 
 				}
 			}
-			else if compare_strings(elem.pred_type,"PR_SF")==0
+			else if compare_strings(rel.pred_type,"PR_SF")==0
 			{
-				dc7 := time.parse("${task_items[elem.pred_task_id].early_start_date}:00") or {time.Time{}}
-				dc8 := time.parse("${task_items[key].early_end_date}:00") or {time.Time{}}
+				dc7 := time.parse("${pred.early_start_date}:00") or {time.Time{}}
+				dc8 := time.parse("${succ.early_end_date}:00") or {time.Time{}}
 				rel_free_float = (dc8 - dc7).hours()
 
 				//Otherwise... early date of successor less relationship early finish
 				if rel_free_float > driver_threshold || rel_free_float < 0
 				{
-					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
-					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					dc12 := time.parse("${succ.early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${rel.early_finish}:00") or {time.Time{}}
 					rel_free_float = (dc12 - dc13).hours()
 
 				}
 			}
-			else if compare_strings(elem.pred_type,"PR_FF")==0
+			else if compare_strings(rel.pred_type,"PR_FF")==0
 			{
-				dc7 := time.parse("${task_items[elem.pred_task_id].early_end_date}:00") or {time.Time{}}
-				dc8 := time.parse("${task_items[key].early_end_date}:00") or {time.Time{}}
+				dc7 := time.parse("${pred.early_end_date}:00") or {time.Time{}}
+				dc8 := time.parse("${succ.early_end_date}:00") or {time.Time{}}
 				rel_free_float = (dc8 - dc7).hours()
 
 				//Otherwise... early date of successor less relationship early finish
 				if rel_free_float > driver_threshold || rel_free_float < 0
 				{
-					dc12 := time.parse("${task_items[key].early_start_date}:00") or {time.Time{}}
-					dc13 := time.parse("${elem.early_finish}:00") or {time.Time{}}
+					dc12 := time.parse("${succ.early_start_date}:00") or {time.Time{}}
+					dc13 := time.parse("${rel.early_finish}:00") or {time.Time{}}
 					rel_free_float = (dc12 - dc13).hours()
-
 				}
 			}
 
@@ -250,22 +250,22 @@ fn print_drivers(xer_file string)
 			if is_driver
 			{
 				println("$key\t\
-						${elem.pred_task_id}\t\
-						${elem.pred_type}\t\
-						${task_items[key].task_code}\t\
-						${task_items[key].task_name}\t\
-						${task_items[elem.pred_task_id].task_code}\t\
-						${task_items[elem.pred_task_id].task_name}\t\
-						${task_items[elem.pred_task_id].early_start_date}\t\
-						${task_items[elem.pred_task_id].early_end_date}\t\
-						${task_items[elem.pred_task_id].late_start_date}\t\
-						${task_items[elem.pred_task_id].late_end_date}\t\
-						${task_items[key].early_start_date}\t\
-						${task_items[key].early_end_date}\t\
-						${task_items[key].late_start_date}\t\
-						${task_items[key].late_end_date}\t\
-						${elem.early_finish}\t\
-						${elem.late_start}\t\
+						${rel.pred_task_id}\t\
+						${rel.pred_type}\t\
+						${succ.task_code}\t\
+						${succ.task_name}\t\
+						${task_items[rel.pred_task_id].task_code}\t\
+						${task_items[rel.pred_task_id].task_name}\t\
+						${task_items[rel.pred_task_id].early_start_date}\t\
+						${task_items[rel.pred_task_id].early_end_date}\t\
+						${task_items[rel.pred_task_id].late_start_date}\t\
+						${task_items[rel.pred_task_id].late_end_date}\t\
+						${succ.early_start_date}\t\
+						${succ.early_end_date}\t\
+						${succ.late_start_date}\t\
+						${succ.late_end_date}\t\
+						${rel.early_finish}\t\
+						${rel.late_start}\t\
 						$rel_free_float")
 			}
 		}
@@ -274,7 +274,7 @@ fn print_drivers(xer_file string)
 	exit(0)
 }
 
-struct Drivers
+struct Relation
 {
 	mut:
 		pred_task_id string
@@ -296,18 +296,18 @@ fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent
 	}
 
 	//println("called level, $root_key, $children")
-	for elem in children
+	for pred in children
 	{
-		//println("recurse $elem with child ${pred_map[elem]}")
+		//println("recurse $pred with child ${pred_map[pred]}")
 		mut a_tree := Tree{}
 		a_tree.concat = root_key + levels.str() // for sorting only
 		a_tree.task_id = root_key
 		a_tree.depth = levels
 		a_tree.parent_node = parent
-		a_tree.child_node = elem
+		a_tree.child_node = pred
 		tree << a_tree
 
-		recurse(mut tree,pred_map, root_key, elem, pred_map[elem],levels+1,max_levels)
+		recurse(mut tree,pred_map, root_key, pred, pred_map[pred],levels+1,max_levels)
 	}
 }
 
