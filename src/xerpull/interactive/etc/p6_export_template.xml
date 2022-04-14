@@ -1,0 +1,9 @@
+<actions> 
+	<action>
+ 		<type>export</type>
+ 	<Projects>
+ 		<ProjectID>PROJECT_ID_TAG</ProjectID>
+ 	</Projects>
+ 		<outputFile>PROJECT_ID_TAG.xer</outputFile>
+ 	</action>
+</actions> 

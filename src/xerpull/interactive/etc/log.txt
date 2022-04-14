@@ -1,0 +1,75 @@
+2020-01-30 09:55:17:384: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=p6_export.xml /logfile=log.txt
+2020-01-30 09:55:17:387: INFORMATION: Processing action script: p6_export.xml
+2020-01-30 09:55:17:389: INFORMATION: Executing action type: export
+2020-01-30 09:55:22:979: 1 projects to export
+2020-01-30 09:55:26:917: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 09:57:56:670: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 09:57:56:681: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 09:57:56:688: INFORMATION: Executing action type: export
+2020-01-30 09:58:02:521: 1 projects to export
+2020-01-30 09:58:06:476: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 09:59:13:840: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 09:59:13:847: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 09:59:13:853: INFORMATION: Executing action type: export
+2020-01-30 09:59:19:466: 1 projects to export
+2020-01-30 09:59:23:914: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 10:23:53:707: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 10:23:53:714: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 10:23:53:720: INFORMATION: Executing action type: export
+2020-01-30 10:23:59:406: 1 projects to export
+2020-01-30 10:24:03:589: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 10:28:53:091: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 10:28:53:098: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 10:28:53:106: INFORMATION: Executing action type: export
+2020-01-30 10:28:58:503: 1 projects to export
+2020-01-30 10:29:02:705: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 10:34:24:457: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 10:34:24:466: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 10:34:24:475: INFORMATION: Executing action type: export
+2020-01-30 10:34:30:104: 1 projects to export
+2020-01-30 10:34:35:043: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 10:49:25:972: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 10:49:25:981: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 10:49:25:987: INFORMATION: Executing action type: export
+2020-01-30 10:49:31:677: 1 projects to export
+2020-01-30 10:49:37:675: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 10:50:01:671: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 10:50:01:681: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 10:50:01:689: INFORMATION: Executing action type: export
+2020-01-30 10:50:07:523: 1 projects to export
+2020-01-30 10:50:12:034: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 11:13:39:537: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 11:13:39:548: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 11:13:39:554: INFORMATION: Executing action type: export
+2020-01-30 11:13:39:564: ERROR: Invalid Project ID :ggggg
+2020-01-30 11:13:39:566: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 11:14:42:420: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 11:14:42:428: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 11:14:42:436: INFORMATION: Executing action type: export
+2020-01-30 11:14:47:860: 1 projects to export
+2020-01-30 11:14:51:900: INFORMATION: Returning Exit Code: 0
+
+
+2020-01-30 11:16:51:490: INFORMATION: Processing command line: "C:\Program Files\Oracle\Primavera P6\P6 Professional\PM.exe"  /username=paraf /password=Jeff /actionScript=etc/p6_export.xml /logfile=etc/log.txt
+2020-01-30 11:16:51:501: INFORMATION: Processing action script: etc/p6_export.xml
+2020-01-30 11:16:51:507: INFORMATION: Executing action type: export
+2020-01-30 11:16:57:139: 1 projects to export
+2020-01-30 11:17:01:951: INFORMATION: Returning Exit Code: 0
