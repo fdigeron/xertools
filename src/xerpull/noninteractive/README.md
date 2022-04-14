@@ -6,6 +6,6 @@ In *p6.bat* you must:
 
 In *etc/p6_export.xml* you must:
 * replace the two occurences of __project_id_here__ with the project you want to export.
-* You can export more than one project by duplicating the block of XML tags from `<action>` to `</action>`
+* You can export more than one project by duplicating the block of code between XML tags `<action>` and `</action>` (inclusive).
 
 -------
