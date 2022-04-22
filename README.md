@@ -72,7 +72,7 @@ As an aside, the author recommends the excellent tool _EmEditor_ by Emurasoft fo
 # Utilities
 
 ## XER Difference
-### bin/xerdiff.exe 
+### xerdiff.exe (Windows) | xerdiff (Linux)
 > Identify what task codes have been added or deleted between 2 or more XER files. The utility will parse each successive pair of .xer files.  That is, if you have three xer files (A.xer, B.xer, C.xer) it will compare A-with-B and then B-with-C.  Files are parsed alphabetically.  There is no limit to the number of .xer files that can be inputted.
 
 **Input:** Two or more .xer files, in the same directory as xerdiff.exe
@@ -100,7 +100,7 @@ _No optional arguments at this time._
 ----
 
 ## XER Task
-### bin/xertask.exe 
+### xertask.exe (Windows) | xertask (Linux)
 >  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.  This tool can also perform a detailed analysis on the XER TASK table as an alternative mode of operation.
 
 **Input:** One or more .xer files, in the same directory as xertask.exe
@@ -202,7 +202,7 @@ Along with two additional columns of the unpivot header and values for
 ----
 
 ## XER Predecessors
-### bin/xerpred.exe 
+### xerpred.exe (Windows) | xerpred (linux)
 >  Tool that will output a list of every task code with all its predecessors, descending recursively to the specified depth.  For instance if activity A has predecessors B and C; the tool will continue to show the predecessors of B and C (say D, E, F), and then the predecessors of D,E,F - continuing on and on until there are none left to process.  _As complex and long schedules can lead to very large file sizes, you can specify the depth limit to process up until._
 
 >This tool can also output the list of schedule drivers; such as those indicated by the "Driver" flag in the relationships table in P6.
@@ -240,3 +240,16 @@ Options:
 **Example of outputting the schedule drivers only**
 
 `xerpred.exe -f myprojectschedule.xer --drivers`
+
+--------
+
+## XER to JSON (xer2json)
+### xer2json.exe (windows) | xer2json (linux)
+>  Convert an XER file to JSON format for usage in other tools.
+
+**Input:** One or more .xer files, in the same directory as xer2json.
+
+**Output:** Writes a json file with the same filename as the XER.  Such that abc.xer will be written as JSON to abc.json.
+
+------------
+

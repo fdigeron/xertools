@@ -3,3 +3,8 @@ src/*.xer
 src/*.exe
 src/*.txt
 src/*.bat
+src/xertask
+src/xerpred
+src/xer2json
+src/xerdump
+src/xerdiff
