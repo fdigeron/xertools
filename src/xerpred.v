@@ -286,7 +286,7 @@ struct Relation
 
 fn recurse(mut tree []Tree,pred_map map[string][]string, root_key string, parent string,children []string,levels int,max_levels int)
 {
-	if children.len==1 || children.len==0
+	if children.len==0
 	{
 		return
 	}
