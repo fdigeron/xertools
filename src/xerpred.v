@@ -63,6 +63,10 @@ fn main() {
 	if drivers_arg {
 		mut fout := os.create('XER_drivers.txt') or { panic(err) }
 
+		fout.writeln('xer_file\ttask_id\tdriver_id\tpred_type\ttask_code\ttask_name\tdriver_code\tdriver_name\tpred_early_start\tpred_early_end\tpred_late_start\tpred_late_end\tsucc_early_start\tsucc_early_end\tsucc_late_start\tsucc_late_end\trel_early_finish\trel_late_start\trel_free_float') or {
+			panic(err)
+		}
+
 		if xer_arg.len == 0 {
 			for xer_file in xer_files {
 				print_drivers(mut fout, xer_file, mut drivers_arr)
@@ -228,10 +232,6 @@ fn print_drivers(mut fout os.File, xer_file string, mut drivers_arr []Driver) {
 	}
 
 	println('Calculating drivers in $xer_file')
-
-	fout.writeln('xer_file\ttask_id\tdriver_id\tpred_type\ttask_code\ttask_name\tdriver_code\tdriver_name\tpred_early_start\tpred_early_end\tpred_late_start\tpred_late_end\tsucc_early_start\tsucc_early_end\tsucc_late_start\tsucc_late_end\trel_early_finish\trel_late_start\trel_free_float') or {
-		panic(err)
-	}
 
 	// key is the task_id in relation_map, so key is the successor,
 	// value is []Relation, are the relations
