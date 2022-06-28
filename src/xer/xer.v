@@ -351,7 +351,7 @@ pub fn print_task_header(start_idx int)
 ////////////////////////////////
 //// XER struct definitions ////
 ////////////////////////////////
-struct XER_calendar
+pub struct XER_calendar
 {
 	pub mut:
 		xer_filename string
@@ -370,7 +370,7 @@ struct XER_calendar
 		clndr_data string
 }
 
-struct XER_pred
+pub struct XER_pred
 {
 	pub mut:
 		xer_filename string
@@ -386,7 +386,7 @@ struct XER_pred
 		arls string
 }
 
-struct XER_task
+pub struct XER_task
 {
 	pub mut:
 	 xer_filename string
@@ -458,7 +458,7 @@ struct XER_task
 	 control_updates_flag string
 }
 
-struct XER_project
+pub struct XER_project
 {
 	pub mut:
 		xer_filename string
