@@ -5,6 +5,7 @@ import os
 import xer
 import flag
 import time
+import math
 
 fn main()
 {
@@ -85,6 +86,7 @@ fn analysis_on_tasks_xers(xer_files []string)
 {
 	println("xer_filename\t\
 			 proj_id\t\
+			 task_id\t\
 			 task_code\t\
 			 task_name\t\
 			 task_type\t\
@@ -103,7 +105,11 @@ fn analysis_on_tasks_xers(xer_files []string)
 			 ini_finish\t\
 			 snap_dur_growth_days\t\
 			 snap_start_delta_days\t\
+			 snap_start_delta_hist\t\
+			 snap_start_slip_freq\t\
 			 snap_end_delta_days\t\
+			 snap_end_delta_hist\t\
+			 snap_end_slip_freq\t\
 			 snap_has_delta\t\
 			 total_start_delta_days\t\
 			 total_end_delta_days\t\
@@ -111,7 +117,11 @@ fn analysis_on_tasks_xers(xer_files []string)
 			 is_completed\t\
 			 snap_completed\t\
 			 realized_duration\t\
-			 realized_accuracy")
+			 realized_accuracy\t\
+			 total_float_hr_cnt\t\
+			 total_float_hr_cnt_hist\t\
+			 free_float_hr_cnt\t\
+			 free_float_hr_cnt_hist")
 
 	mut xer_combined := []map[string]xer.XER_task{}
 
@@ -125,12 +135,88 @@ fn analysis_on_tasks_xers(xer_files []string)
 
 	project_map := xer.parse_project(xer_files[xer_files.len-1]) // for last-recalc
 
+
+	// history data (start dates, end dates, and float)
+	mut start_delta_history := map[string][]f64
+	mut end_delta_history := map[string][]f64
+	mut total_float_history := map[string][]int
+	mut free_float_history := map[string][]int
+	for idx,_ in xer_combined
+	{
+		for task_id,_ in xer_combined[idx]
+		{
+			total_float_history[task_id] << xer_combined[idx][task_id].total_float_hr_cnt.int()
+			free_float_history[task_id] << xer_combined[idx][task_id].free_float_hr_cnt.int()
+
+			// Only do some operations for the first file (float history)
+			// We do not do curr/prev time comparisons on first file (idx 0)
+			if idx == 0 { continue }
+
+			mut has_previous_start := true
+			mut has_previous_end := true
+
+			curr_start_time := time.parse("${xer_combined[idx][task_id].target_start_date}:00") or 
+						{time.Time{}}
+
+			prev_start_time := time.parse("${xer_combined[idx-1][task_id].target_start_date}:00") or 
+						{
+							has_previous_start = false
+							time.Time{}
+						}
+
+			curr_end_time := time.parse("${xer_combined[idx][task_id].target_end_date}:00") or 
+					{time.Time{}}
+
+			prev_end_time := time.parse("${xer_combined[idx-1][task_id].target_end_date}:00") or 
+					{
+						has_previous_end = false
+						time.Time{}
+					}
+			
+			if has_previous_start {
+				start_delta_history[task_id] << math.round(((curr_start_time - prev_start_time).hours()/24))
+			} else { 
+				start_delta_history[task_id] << 0.00 
+			}
+
+			if has_previous_end {
+				end_delta_history[task_id] << math.round(((curr_end_time - prev_end_time).hours()/24))
+			} else {
+				end_delta_history[task_id] << 0.00 
+			}
+		}
+	}
+
+	// slip frequencies.
+	mut start_slip_freq := map[string]f64
+	mut end_slip_freq := map[string]f64
+	for task_id,_ in latest_xer
+	{
+		mut start_slips := 0.00
+		for starts in start_delta_history[task_id] {
+			if starts != 0 {
+				start_slips++
+			}
+		}
+		start_slip_freq[task_id] = start_slips/(start_delta_history[task_id].len)
+
+		mut end_slips := 0.00
+		for ends in end_delta_history[task_id] {
+			if ends != 0 {
+				end_slips++
+			}
+		}
+
+		end_slip_freq[task_id] = end_slips/(end_delta_history[task_id].len)
+	}
+
 	for key,value in latest_xer  // Do analytics on latest XER only
 	{
 		// xer_filename, proj_id, task_code, task_name, task_type
 		print("\
 		$value.xer_filename\t\
 		$value.proj_id\t\
+		$value.task_id\t\
 		$value.task_code\t\
 		$value.task_name\t\
 		$value.task_type\t\
@@ -205,17 +291,18 @@ fn analysis_on_tasks_xers(xer_files []string)
 			}
 		}
 
-		// snap_dur_growth_days, snap_start_delta_days, snap_end_delta_days, snap_has_delta
-		start_delta_lastsnap := ((curr_start_time - prev_start_time).hours()/24)
-		end_delta_lastsnap := ((curr_end_time - prev_end_time).hours()/24)
 		mut movement_lastsnap := false
-		if start_delta_lastsnap!=0 || end_delta_lastsnap!=0
+		if start_delta_history[key][start_delta_history[key].len-1]!=0 || end_delta_history[key][end_delta_history[key].len-1]!=0
 		{
 			movement_lastsnap = true
 		}
 		print("${curr_dur_days-prev_dur_days:0.1f}\t\
-			   ${start_delta_lastsnap:0.1f}\t\
-			   ${end_delta_lastsnap:0.1f}\t\
+			   ${start_delta_history[key][start_delta_history[key].len-1]}\t\
+			   ${start_delta_history[key]}\t\
+			   ${start_slip_freq[key]:0.2f}\t\
+			   ${end_delta_history[key][end_delta_history[key].len-1]}\t\
+			   ${end_delta_history[key]}\t\
+			   ${end_slip_freq[key]:0.2f}\t\
 			   $movement_lastsnap\t")
 
 		// total_start_delta_days, total_end_delta_days, total_dur_growth
@@ -240,24 +327,28 @@ fn analysis_on_tasks_xers(xer_files []string)
 		print("$is_completed\t\
 		       $snap_completed\t")
 		
-		// realized_duration, realized_accuracy
+		// realized_duration
 		if is_completed
 		{
 			print("${curr_dur_days:0.1f}\t")
 			
+			// realized accuracy
 			if ini_dur_days < 0.001 && curr_dur_days < 0.001
 			{
-				print("1.00")
+				print("1.00\t")
 			}
 			else
 			{
-		        print("${curr_dur_days/ini_dur_days:0.2f}")
+		        print("${curr_dur_days/ini_dur_days:0.2f}\t")
 			}
 		}
 		else
 		{
-			print("\t") // Tab over as not yet completed...
+			print("\t\t") // Tab over as not yet completed...
 		}
+
+		print("$value.total_float_hr_cnt\t${total_float_history[key]}\t")
+		print("$value.free_float_hr_cnt\t${free_float_history[key]}")
 
 		print("\n")
 	}
