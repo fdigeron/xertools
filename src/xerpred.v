@@ -5,6 +5,7 @@ import os
 import flag
 import xer
 import time
+import util
 
 struct Driver {
 mut:
@@ -19,10 +20,15 @@ mut:
 }
 
 fn main() {
+	mut pre_built_str := ''
+	$if prebuilt ? {
+		pre_built_str = '[pre-built binary release (##DATE##)]\n'
+	}
+
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('xerpred')
 
-	fp.version('v2022.02.24\nCopyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
 
 	fp.description('\nLogic-traces all the XER predecessor line items.\nOutput is of [parent-node]->[child-node] relations, up to specified depth.\nThis software will -NOT- make any changes to your XER files.')
 
@@ -32,6 +38,7 @@ fn main() {
 	mut minimal_output_arg := fp.bool('minimal', `m`, false, 'output only task-id records')
 	mut max_levels_arg := fp.int('depth', `l`, 5, 'specify max predecessor depth [default:5]')
 	mut drivers_arg := fp.bool('drivers', `d`, false, 'output schedule drivers and exit')
+	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
 		eprintln(err)
@@ -40,6 +47,11 @@ fn main() {
 	}
 
 	additional_args.join_lines()
+
+	if update_arg {
+		util.github_update('chipnetics', 'xertools', 'xerpred.exe')
+		return
+	}
 
 	// Get the XER files in current directory
 	dir_elems := os.ls('.') or { panic(err) }

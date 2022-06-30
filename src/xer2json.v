@@ -3,17 +3,43 @@
 // that can be found in the LICENSE file. Do not remove this header.
 import os
 import x.json2
+import util
+import flag
 
 fn main()
 {
+	mut pre_built_str := ''
+	$if prebuilt ? {
+		pre_built_str = '[pre-built binary release (##DATE##)]\n'
+	}
+
+	mut fp := flag.new_flag_parser(os.args)
+	fp.application('xer2json')
+
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+
+	fp.description('\nConverts contents of XER to JSON format.\nThis software will -NOT- make any changes to your XER files.')
+
+	fp.skip_executable()
+
+	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
+
+	additional_args := fp.finalize() or {
+		eprintln(err)
+		println(fp.usage())
+		return
+	}
+
+	additional_args.join_lines()
+
+	if update_arg {
+		util.github_update('chipnetics', 'xertools', 'xer2json.exe')
+		return
+	}
+
 	dir_elems := os.ls(".") or {panic(err)}
 	
 	mut xer_files := []string{}
-
-	println("Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.")
-	println("Use of this source code (/program) is governed by an MIT license,")
-	println("that can be found in the LICENSE file.")
-	println("")
 	
 	for file in dir_elems
 	{
@@ -103,9 +129,9 @@ fn main()
 
 fn is_ascii(s string) bool 
 {
-    for char in s 
+    for a_char in s 
 	{
-        if char > 127 {
+        if a_char > 127 {
             return false
         }
     }

@@ -3,20 +3,46 @@
 // that can be found in the LICENSE file. Do not remove this header.
 import xer
 import os
+import util
+import flag
 
 fn main()
 {
+	mut pre_built_str := ''
+	$if prebuilt ? {
+		pre_built_str = '[pre-built binary release (##DATE##)]\n'
+	}
+
+	mut fp := flag.new_flag_parser(os.args)
+	fp.application('xerdiff')
+
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+
+	fp.description('\nPrints the difference between 2 or more XER files.\nThis software will -NOT- make any changes to your XER files.')
+
+	fp.skip_executable()
+
+	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
+
+	additional_args := fp.finalize() or {
+		eprintln(err)
+		println(fp.usage())
+		return
+	}
+
+	additional_args.join_lines()
+
+	if update_arg {
+		util.github_update('chipnetics', 'xertools', 'xerdiff.exe')
+		return
+	}
+
 	args_str := os.args.clone()
 	dir_elems := os.ls(".") or {panic(err)}
 	
 	mut xer_files := []string{}
 	mut full_output := false
 
-	println("Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.")
-	println("Use of this source code (/program) is governed by an MIT license,")
-	println("that can be found in the LICENSE file.")
-	println("")
-	
 	for param in args_str
 	{
 		if compare_strings(param,"--full") == 0

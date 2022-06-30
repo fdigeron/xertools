@@ -2,18 +2,44 @@
 // Use of this source code (/program) is governed by an MIT license,
 // that can be found in the LICENSE file. Do not remove this header.
 import os
+import util
+import flag
 
 fn main()
 {
+	mut pre_built_str := ''
+	$if prebuilt ? {
+		pre_built_str = '[pre-built binary release (##DATE##)]\n'
+	}
+
+	mut fp := flag.new_flag_parser(os.args)
+	fp.application('xerdump')
+
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+
+	fp.description('\nDumps all the contents of one or more XER files to respective folders.\nThis software will -NOT- make any changes to your XER files.')
+
+	fp.skip_executable()
+
+	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
+
+	additional_args := fp.finalize() or {
+		eprintln(err)
+		println(fp.usage())
+		return
+	}
+
+	additional_args.join_lines()
+
+	if update_arg {
+		util.github_update('chipnetics', 'xertools', 'xerdump.exe')
+		return
+	}
+
 	dir_elems := os.ls(".") or {panic(err)}
 	
 	mut xer_files := []string{}
 
-	println("Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.")
-	println("Use of this source code (/program) is governed by an MIT license,")
-	println("that can be found in the LICENSE file.")
-	println("")
-	
 	for file in dir_elems
 	{
 		if file.ends_with(".xer")
