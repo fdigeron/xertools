@@ -6,8 +6,7 @@ import util
 import flag
 import xer
 
-fn main()
-{
+fn main() {
 	mut pre_built_str := ''
 	$if prebuilt ? {
 		pre_built_str = '[pre-built binary release (##DATE##)]\n'
@@ -23,9 +22,10 @@ fn main()
 	fp.skip_executable()
 
 	master_arg := fp.bool('consolidated', `c`, false, 'extract all possible combinations of ACTVTYPE and ACTVCODE')
-	//append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
-	//sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
-	//xer_arg := fp.bool('xer', `x`, false, 'specify an XER instead of using all')
+
+	// append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
+	// sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
+	// xer_arg := fp.bool('xer', `x`, false, 'specify an XER instead of using all')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
@@ -41,14 +41,12 @@ fn main()
 		return
 	}
 
-	dir_elems := os.ls(".") or {panic(err)}
-	
+	dir_elems := os.ls('.') or { panic(err) }
+
 	mut xer_files := []string{}
 
-	for file in dir_elems
-	{
-		if file.ends_with(".xer")
-		{
+	for file in dir_elems {
+		if file.ends_with('.xer') {
 			xer_files << file
 		}
 	}
@@ -58,74 +56,61 @@ fn main()
 		return
 	}
 
-	for index,_ in xer_files
-	{
-		println("[Analyzing]  ${xer_files[index]}")
+	for index, _ in xer_files {
+		println('[Analyzing]  ${xer_files[index]}')
 
-		lines := os.read_lines(xer_files[index]) or {panic(err)}
+		lines := os.read_lines(xer_files[index]) or { panic(err) }
 
-		dir_name := xer_files[index].all_before_last(".xer")
+		dir_name := xer_files[index].all_before_last('.xer')
 		os.mkdir(dir_name) or {} // Okay if dir exists.
-
 		mut line_index := 0
-		mut table_header := ""
-		
-		for i:=line_index; i<lines.len; i++
-		{
+		mut table_header := ''
+
+		for i := line_index; i < lines.len; i++ {
 			line_index++
-			if lines[i].starts_with("%T")
-			{
-				table_header = lines[i].find_between("%T\t","\n")
-				mut file_out := os.create(dir_name + "/" + 
-									table_header + ".txt") or {panic(err)}
-				
-				for j:=line_index; j<lines.len; j++
-				{
-					if lines[j].starts_with("%T") // reached new table
-					{
+			if lines[i].starts_with('%T') {
+				table_header = lines[i].find_between('%T\t', '\n')
+				mut file_out := os.create(dir_name + '/' + table_header + '.txt') or { panic(err) }
+
+				for j := line_index; j < lines.len; j++ {
+					// reached new table
+					if lines[j].starts_with('%T') {
 						file_out.close()
 						break
 					}
-					file_out.writeln(lines[j]) ?
+					file_out.writeln(lines[j])?
 				}
 			}
 		}
 	}
 
-	println("[Done]")
-	println("")
+	println('[Done]')
+	println('')
 }
 
-fn generate_master_table(xer_files []string)
-{
-
-	for xer_file in xer_files
-	{
+fn generate_master_table(xer_files []string) {
+	for xer_file in xer_files {
 		map_actvtype := xer.parse_actvtype(xer_file)
 		map_actvcode := xer.parse_actvcode(xer_file)
-		map_task  := xer.parse_task_idkey(xer_file)
+		map_task := xer.parse_task_idkey(xer_file)
 		arr_taskactv := xer.parse_taskactv(xer_file)
 
 		// xer_filename,task_id,actv_code_type_id,actv_code_id,proj_id
 		// TODO: should sort arr_taskactv
-		for task in arr_taskactv
-		{
+		for task in arr_taskactv {
 			actv_code_type := map_actvtype[task.actv_code_type_id].actv_code_type
 			actv_code_name := map_actvcode[task.actv_code_id].actv_code_name
 			short_name := map_actvcode[task.actv_code_id].short_name
 
-			print("$xer_file\t$actv_code_type\t$actv_code_name\t$short_name")
+			print('$xer_file\t$actv_code_type\t$actv_code_name\t$short_name')
 
 			data_arr := map_task[task.task_id].to_array()
 
-			for elem in data_arr[1..]
-			{
-				print("\t$elem")
+			for elem in data_arr[1..] {
+				print('\t$elem')
 			}
 
-			println("")
-
+			println('')
 		}
 	}
-
 }

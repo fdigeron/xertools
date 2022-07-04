@@ -6,8 +6,7 @@ import x.json2
 import util
 import flag
 
-fn main()
-{
+fn main() {
 	mut pre_built_str := ''
 	$if prebuilt ? {
 		pre_built_str = '[pre-built binary release (##DATE##)]\n'
@@ -37,69 +36,59 @@ fn main()
 		return
 	}
 
-	dir_elems := os.ls(".") or {panic(err)}
-	
+	dir_elems := os.ls('.') or { panic(err) }
+
 	mut xer_files := []string{}
-	
-	for file in dir_elems
-	{
-		if file.ends_with(".xer")
-		{
+
+	for file in dir_elems {
+		if file.ends_with('.xer') {
 			xer_files << file
 		}
 	}
 
-	for index,_ in xer_files
-	{
-		println("[Analyzing]  ${xer_files[index]}")
+	for index, _ in xer_files {
+		println('[Analyzing]  ${xer_files[index]}')
 
-		lines := os.read_lines(xer_files[index]) or {panic(err)}
+		lines := os.read_lines(xer_files[index]) or { panic(err) }
 
 		// JSON2 vars
 		mut me := map[string]json2.Any{}
 		mut xer_row := map[string]json2.Any{}
-    	mut xer_rows := []json2.Any{}
+		mut xer_rows := []json2.Any{}
 
 		mut line_index := 0
 		mut header_arr := []string{}
 
-		for i:=line_index; i<lines.len; i++
-		{
+		for i := line_index; i < lines.len; i++ {
 			line_index++
-			if lines[i].starts_with("%T")
-			{
-				table_name := lines[i].find_between("%T\t","\n")
-				println("\t\tTABLE: $table_name")
-				
-				for j:=line_index; j<lines.len; j++
-				{
-					if lines[j].starts_with("%T") // reached new table
-					{
+			if lines[i].starts_with('%T') {
+				table_name := lines[i].find_between('%T\t', '\n')
+				println('\t\tTABLE: $table_name')
+
+				for j := line_index; j < lines.len; j++ {
+					// reached new table
+					if lines[j].starts_with('%T') {
 						break
 					}
-					else if lines[j].starts_with("%E") // reached end of file
-					{
+					// reached end of file
+					else if lines[j].starts_with('%E') {
 						break
 					}
 
-					if j == line_index // at the header
-					{
-						header_arr = lines[j].split("\t")
+					// at the header
+					if j == line_index {
+						header_arr = lines[j].split('\t')
 						continue
 					}
 
 					// If fell down here it is data for this header...
-					line_arr := lines[j].split("\t")
+					line_arr := lines[j].split('\t')
 
-					for idx, elem in header_arr
-					{	
-						if is_ascii(line_arr[idx])
-						{
+					for idx, elem in header_arr {
+						if is_ascii(line_arr[idx]) {
 							xer_row[elem] = line_arr[idx]
-						}
-						else
-						{
-							xer_row[elem] = "non-ascii"
+						} else {
+							xer_row[elem] = 'non-ascii'
 						}
 					}
 
@@ -112,28 +101,26 @@ fn main()
 			}
 		}
 
-		print("[Writing JSON].... ")
-		
+		print('[Writing JSON].... ')
+
 		// Done walking this XER
-		xer_name := xer_files[index].all_before_last(".xer")
-		mut json_out := os.create(xer_name + ".json") or {panic(err)}
-		json_out.writeln(me.str()) or {panic(err)}
+		xer_name := xer_files[index].all_before_last('.xer')
+		mut json_out := os.create(xer_name + '.json') or { panic(err) }
+		json_out.writeln(me.str()) or { panic(err) }
 		json_out.close()
 
-		println("[Done]\n")
+		println('[Done]\n')
 	}
 
-	println("[Done Batch]")
-	println("")
+	println('[Done Batch]')
+	println('')
 }
 
-fn is_ascii(s string) bool 
-{
-    for a_char in s 
-	{
-        if a_char > 127 {
-            return false
-        }
-    }
-    return true
+fn is_ascii(s string) bool {
+	for a_char in s {
+		if a_char > 127 {
+			return false
+		}
+	}
+	return true
 }

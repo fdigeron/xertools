@@ -158,7 +158,6 @@ fn analyze_drivers(mut drivers_arr []Driver) {
 	mut driver_cnt_map := map[string]map[string]int{}
 
 	// println(drivers_arr)
-
 	for elem in drivers_arr {
 		drivers_map[elem.xer_name][elem.task_code] << elem.driver_code
 
@@ -315,6 +314,7 @@ fn print_drivers(mut fout os.File, xer_file string, mut drivers_arr []Driver) {
 				fout.writeln('$xer_file\t$key\t$rel.pred_task_id\t$rel.pred_type\t$succ.task_code\t$succ.task_name\t${task_items[rel.pred_task_id].task_code}\t${task_items[rel.pred_task_id].task_name}\t${task_items[rel.pred_task_id].early_start_date}\t${task_items[rel.pred_task_id].early_end_date}\t${task_items[rel.pred_task_id].late_start_date}\t${task_items[rel.pred_task_id].late_end_date}\t$succ.early_start_date\t$succ.early_end_date\t$succ.late_start_date\t$succ.late_end_date\t$rel.early_finish\t$rel.late_start\t$rel_free_float') or {
 					panic(err)
 				}
+
 				// Save to struct
 				mut a_driver := Driver{}
 				a_driver.xer_name = xer_file

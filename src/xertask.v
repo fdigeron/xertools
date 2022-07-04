@@ -86,7 +86,6 @@ fn analysis_on_tasks_xers(xer_files []string) {
 
 	latest_xer := xer_combined[xer_files.len - 1].clone() // points to latest XER struct
 	prev_xer := xer_combined[xer_files.len - 2].clone() // points to previous XER struct
-
 	project_map := xer.parse_project(xer_files[xer_files.len - 1]) // for last-recalc
 
 	// history data (start dates, end dates, and float)
@@ -297,7 +296,6 @@ fn unpivot_tasks_xers(xer_files []string, p_col []int, h_col []int) {
 			line_index++
 			if compare_strings(line, '%T\tTASK') == 0 {
 				line_index++ // Advance passed header...
-
 				for i := line_index; i < lines.len; i++ {
 					if lines[i].starts_with('%T') {
 						break
