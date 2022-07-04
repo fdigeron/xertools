@@ -4,6 +4,8 @@
 module xer
 import os
 
+// Parses TASK from an XER file, and returns a map of the line items
+// in TASK with key task_code.
 pub fn parse_task(xer_file string) map[string]XER_task
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -16,7 +18,8 @@ pub fn parse_task(xer_file string) map[string]XER_task
 		line_index++
 		if compare_strings(line,"%T\tTASK") == 0
 		{
-			line_index++ // Skip header.
+			// Skip header
+			line_index++
 			for i:=line_index; i<lines.len; i++
 			{
 				if lines[i].starts_with("%T")
@@ -27,9 +30,12 @@ pub fn parse_task(xer_file string) map[string]XER_task
 				
 				mut xer_struct := XER_task{}
 				mut loop := 0
-				$for field in XER_task.fields // Reflection
+
+				// Reflection
+				$for field in XER_task.fields 
 				{
-					$if field.typ is string // Required check for compiler.
+					// Required check for compiler.
+					$if field.typ is string 
 					{
 						xer_struct.$(field.name) = delimited_row[loop]
 						loop++
@@ -45,6 +51,8 @@ pub fn parse_task(xer_file string) map[string]XER_task
 	return xer_table
 }
 
+// Parses TASK from an XER file, and returns a map of the line items
+// in TASK with key task_id.
 pub fn parse_task_idkey(xer_file string) map[string]XER_task
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -57,7 +65,8 @@ pub fn parse_task_idkey(xer_file string) map[string]XER_task
 		line_index++
 		if compare_strings(line,"%T\tTASK") == 0
 		{
-			line_index++ // Skip header.
+			// Skip header.
+			line_index++ 
 			for i:=line_index; i<lines.len; i++
 			{
 				if lines[i].starts_with("%T")
@@ -68,9 +77,12 @@ pub fn parse_task_idkey(xer_file string) map[string]XER_task
 				
 				mut xer_struct := XER_task{}
 				mut loop := 0
-				$for field in XER_task.fields // Reflection
+
+				// Reflection
+				$for field in XER_task.fields 
 				{
-					$if field.typ is string // Required check for compiler.
+					// Required check for compiler.
+					$if field.typ is string 
 					{
 						xer_struct.$(field.name) = delimited_row[loop]
 						loop++
@@ -78,7 +90,7 @@ pub fn parse_task_idkey(xer_file string) map[string]XER_task
 				}
 				xer_struct.xer_filename = xer_file
 
-				// Map index of task_code, assigned to struct
+				// Map index of task_id, assigned to struct
 				xer_table[delimited_row[1]] = xer_struct 
 			}
 		}
@@ -86,6 +98,170 @@ pub fn parse_task_idkey(xer_file string) map[string]XER_task
 	return xer_table
 }
 
+// Parses ACTVTYPE from an XER file, and returns a map of the line items
+// in ACTVYPE with key actv_code_type_id.
+pub fn parse_actvtype(xer_file string) map[string]XER_actvtype
+{
+	lines := os.read_lines(xer_file) or {panic(err)}
+	mut line_index := 0
+	mut delimited_row := []string{}
+	mut xer_table := map[string]XER_actvtype{}
+
+	for line in lines
+	{
+		line_index++
+		if compare_strings(line,"%T\tACTVTYPE") == 0
+		{
+			line_index++ // Skip header.
+			for i:=line_index; i<lines.len; i++
+			{
+				if lines[i].starts_with("%T")
+				{
+					return xer_table
+				}
+				delimited_row = lines[i].split("\t")
+				
+				mut xer_struct := XER_actvtype{}
+				mut loop := 0
+
+				// Reflection
+				$for field in XER_actvtype.fields 
+				{
+					// Required check for compiler.
+					$if field.typ is string 
+					{
+						xer_struct.$(field.name) = delimited_row[loop]
+						loop++
+					}
+				}
+				xer_struct.xer_filename = xer_file
+				
+				// key is actv_code_type_id
+				xer_table[delimited_row[1]] = xer_struct 
+			}
+		}
+	}
+	return xer_table
+}
+
+// Parses ACTVTCODE from an XER file, and returns a map of the line items
+// in ACTVTCODE with key actv_code_id.
+pub fn parse_actvcode(xer_file string) map[string]XER_actvcode
+{
+	lines := os.read_lines(xer_file) or {panic(err)}
+	mut line_index := 0
+	mut delimited_row := []string{}
+	mut xer_table := map[string]XER_actvcode{}
+
+	for line in lines
+	{
+		line_index++
+		if compare_strings(line,"%T\tACTVCODE") == 0
+		{
+			line_index++ // Skip header.
+			for i:=line_index; i<lines.len; i++
+			{
+				if lines[i].starts_with("%T")
+				{
+					return xer_table
+				}
+				delimited_row = lines[i].split("\t")
+				
+				mut xer_struct := XER_actvcode{}
+				mut loop := 0
+
+				// Reflection
+				$for field in XER_actvcode.fields 
+				{
+					// Required check for compiler.
+					$if field.typ is string 
+					{
+						xer_struct.$(field.name) = delimited_row[loop]
+						loop++
+					}
+				}
+				xer_struct.xer_filename = xer_file
+				
+				// key is actv_code_id
+				xer_table[delimited_row[1]] = xer_struct 
+			}
+		}
+	}
+	return xer_table
+}
+
+// Parses TASKACTV from an XER file, and returns an array of the line items
+// in TASKACTV.  Array is sorted based on actv_code_type_id, actv_code_id.
+pub fn parse_taskactv(xer_file string) []XER_taskactv
+{
+	lines := os.read_lines(xer_file) or {panic(err)}
+	mut line_index := 0
+	mut delimited_row := []string{}
+	mut xer_table := []XER_taskactv{}
+
+	// Anonymous function
+	custom_sort_fn := fn (a &XER_taskactv, b &XER_taskactv) int {
+
+		if a.actv_code_type_id == b.actv_code_type_id {
+			if a.actv_code_id < b.actv_code_id {
+				return 1
+			}
+			if a.actv_code_id > b.actv_code_id {
+				return -1
+			}
+			return 0
+		}
+		if a.actv_code_type_id < b.actv_code_type_id {
+			return -1
+		}
+		else if a.actv_code_type_id > b.actv_code_type_id {
+			return 1
+		}
+		return 0
+	}
+
+	for line in lines
+	{
+		line_index++
+		if compare_strings(line,"%T\tTASKACTV") == 0
+		{
+			// Skip header.
+			line_index++ 
+			for i:=line_index; i<lines.len; i++
+			{
+				if lines[i].starts_with("%T")
+				{
+					xer_table.sort_with_compare(custom_sort_fn)
+					return xer_table
+				}
+				delimited_row = lines[i].split("\t")
+				
+				mut xer_struct := XER_taskactv{}
+				mut loop := 0
+
+				// Reflection
+				$for field in XER_taskactv.fields 
+				{
+					// Required check for compiler.
+					$if field.typ is string 
+					{
+						xer_struct.$(field.name) = delimited_row[loop]
+						loop++
+					}
+				}
+				xer_struct.xer_filename = xer_file
+				
+				// Taskactv doesn't have any unique identifier,
+				// so just store in array instead of map.
+				xer_table << xer_struct 
+			}
+		}
+	}
+	return xer_table
+}
+
+// Parses PROJECT from an XER file, and returns a map of the line items
+// in PROJECT with key project_id.
 pub fn parse_project(xer_file string) map[string]XER_project
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -109,9 +285,11 @@ pub fn parse_project(xer_file string) map[string]XER_project
 				
 				mut xer_struct := XER_project{}
 				mut loop := 0
-				$for field in XER_project.fields // Reflection
+				// Reflection
+				$for field in XER_project.fields 
 				{
-					$if field.typ is string // Required check for compiler.
+					// Required check for compiler.
+					$if field.typ is string 
 					{
 						xer_struct.$(field.name) = delimited_row[loop]
 						loop++
@@ -128,6 +306,8 @@ pub fn parse_project(xer_file string) map[string]XER_project
 	return xer_table
 }
 
+// Parses TASKPRED from an XER file, and returns a map of the line items
+// in TASKPRED with key task_pred_id.
 pub fn parse_pred(xer_file string) map[string]XER_pred
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -151,9 +331,12 @@ pub fn parse_pred(xer_file string) map[string]XER_pred
 				
 				mut xer_struct := XER_pred{}
 				mut loop := 0
-				$for field in XER_pred.fields // Reflection
+
+				// Reflection
+				$for field in XER_pred.fields 
 				{
-					$if field.typ is string // Required check for compiler.
+					// Required check for compiler.
+					$if field.typ is string 
 					{
 						xer_struct.$(field.name) = delimited_row[loop]
 						loop++
@@ -161,7 +344,7 @@ pub fn parse_pred(xer_file string) map[string]XER_pred
 				}
 				xer_struct.xer_filename = xer_file
 
-				// Map index of task_code, assigned to struct
+				// Map index of task_pred_id, assigned to struct
 				xer_table[delimited_row[1]] = xer_struct 
 			}
 		}
@@ -169,6 +352,8 @@ pub fn parse_pred(xer_file string) map[string]XER_pred
 	return xer_table
 }
 
+// Parses CALENDAR from an XER file, and returns a map of the line items
+// in CALENDAR with key clndr_id.
 pub fn parse_calendar(xer_file string) map[string]XER_calendar
 {
 	lines := os.read_lines(xer_file) or {panic(err)}
@@ -181,7 +366,8 @@ pub fn parse_calendar(xer_file string) map[string]XER_calendar
 		line_index++
 		if compare_strings(line,"%T\tCALENDAR") == 0
 		{
-			line_index++ // Skip header.
+			// Skip header.
+			line_index++ 
 			for i:=line_index; i<lines.len; i++
 			{
 				if lines[i].starts_with("%T")
@@ -192,9 +378,12 @@ pub fn parse_calendar(xer_file string) map[string]XER_calendar
 				
 				mut xer_struct := XER_calendar{}
 				mut loop := 0
-				$for field in XER_calendar.fields // Reflection
+
+				// Reflection
+				$for field in XER_calendar.fields 
 				{
-					$if field.typ is string // Required check for compiler.
+					// Required check for compiler.
+					$if field.typ is string 
 					{
 						xer_struct.$(field.name) = delimited_row[loop]
 						loop++
@@ -202,7 +391,7 @@ pub fn parse_calendar(xer_file string) map[string]XER_calendar
 				}
 				xer_struct.xer_filename = xer_file
 
-				// Map index of task_code, assigned to struct
+				// Map index of clndr_id, assigned to struct
 				xer_table[delimited_row[1]] = xer_struct 
 			}
 		}
@@ -384,6 +573,43 @@ pub struct XER_pred
 		float_path string
 		aref string
 		arls string
+}
+
+pub struct XER_taskactv
+{
+	pub mut:
+	xer_filename string
+	task_id string
+	actv_code_type_id string
+	actv_code_id string
+	proj_id string
+}
+
+pub struct XER_actvcode
+{
+	pub mut:
+	xer_filename string
+	actv_code_id string
+	parent_actv_code_id string
+	actv_code_type_id string
+	actv_code_name string
+	short_name string
+	seq_num string
+	color string
+	total_assignments string
+}
+
+pub struct XER_actvtype
+{
+	pub mut:
+	xer_filename string
+	actv_code_type_id string
+	actv_short_len string
+	seq_num string
+	actv_code_type string
+	proj_id string
+	wbs_id string
+	actv_code_type_scope string
 }
 
 pub struct XER_task

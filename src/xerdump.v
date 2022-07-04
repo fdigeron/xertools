@@ -4,6 +4,7 @@
 import os
 import util
 import flag
+import xer
 
 fn main()
 {
@@ -21,6 +22,10 @@ fn main()
 
 	fp.skip_executable()
 
+	master_arg := fp.bool('consolidated', `c`, false, 'extract all possible combinations of ACTVTYPE and ACTVCODE')
+	//append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
+	//sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
+	//xer_arg := fp.bool('xer', `x`, false, 'specify an XER instead of using all')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
@@ -46,6 +51,11 @@ fn main()
 		{
 			xer_files << file
 		}
+	}
+
+	if master_arg {
+		generate_master_table(xer_files)
+		return
 	}
 
 	for index,_ in xer_files
@@ -84,4 +94,38 @@ fn main()
 
 	println("[Done]")
 	println("")
+}
+
+fn generate_master_table(xer_files []string)
+{
+
+	for xer_file in xer_files
+	{
+		map_actvtype := xer.parse_actvtype(xer_file)
+		map_actvcode := xer.parse_actvcode(xer_file)
+		map_task  := xer.parse_task_idkey(xer_file)
+		arr_taskactv := xer.parse_taskactv(xer_file)
+
+		// xer_filename,task_id,actv_code_type_id,actv_code_id,proj_id
+		// TODO: should sort arr_taskactv
+		for task in arr_taskactv
+		{
+			actv_code_type := map_actvtype[task.actv_code_type_id].actv_code_type
+			actv_code_name := map_actvcode[task.actv_code_id].actv_code_name
+			short_name := map_actvcode[task.actv_code_id].short_name
+
+			print("$xer_file\t$actv_code_type\t$actv_code_name\t$short_name")
+
+			data_arr := map_task[task.task_id].to_array()
+
+			for elem in data_arr[1..]
+			{
+				print("\t$elem")
+			}
+
+			println("")
+
+		}
+	}
+
 }
