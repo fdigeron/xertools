@@ -23,7 +23,7 @@ fn main() {
 
 	master_arg := fp.bool('consolidated', `c`, false, 'extract all possible combinations of ACTVTYPE and ACTVCODE')
 
-	// append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
+	append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
 	// sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
 	// xer_arg := fp.bool('xer', `x`, false, 'specify an XER instead of using all')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
@@ -53,9 +53,18 @@ fn main() {
 
 	if master_arg {
 		generate_master_table(xer_files)
+		println('[Done]\n')
 		return
 	}
 
+	if append_arg {
+		generate_appended(xer_files)
+		println('[Done]\n')
+		return
+	}
+
+	// Else if fall through to here, just execute normal behaviour of dumping
+	// contents to respective folders.
 	for index, _ in xer_files {
 		println('[Analyzing]  ${xer_files[index]}')
 
@@ -86,6 +95,53 @@ fn main() {
 
 	println('[Done]')
 	println('')
+}
+
+fn generate_appended(xer_files []string) {
+	dir_name := 'combined'
+
+	// Check if combined dir already exists, and if so, remove it
+	if os.exists(dir_name) {
+		os.rmdir_all(dir_name) or {
+			println("Failed to deleted existing 'combined' directory.\nResults will be appended to existing.")
+		}
+	}
+
+	os.mkdir(dir_name) or {}
+
+	for index, filename in xer_files {
+		println('[Analyzing]  ${xer_files[index]}')
+
+		lines := os.read_lines(xer_files[index]) or { panic(err) }
+
+		mut line_index := 0
+		mut table_header := ''
+
+		for i := line_index; i < lines.len; i++ {
+			line_index++
+			if lines[i].starts_with('%T') {
+				table_header = lines[i].find_between('%T\t', '\n')
+
+				mut file_out := os.File{}
+				if os.exists(dir_name + '/' + table_header + '.txt') == false {
+					file_out = os.create(dir_name + '/' + table_header + '.txt') or { panic(err) }
+				} else {
+					file_out = os.open_append(dir_name + '/' + table_header + '.txt') or {
+						panic(err)
+					}
+				}
+
+				for j := line_index; j < lines.len; j++ {
+					// reached new table
+					if lines[j].starts_with('%T') {
+						file_out.close()
+						break
+					}
+					file_out.writeln('$filename\t${lines[j]}') or {}
+				}
+			}
+		}
+	}
 }
 
 fn generate_master_table(xer_files []string) {
