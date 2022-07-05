@@ -283,7 +283,7 @@ fn generate_database(xer_files []string) {
 			println('Inserting...                       [${f64(idx) / cnt_sql * 100.0:0.1f}%]')
 		}
 
-		db.fast_exec('$command')
+		db.exec_none('$command')
 	}
 	print('\e[1A') // Move cursor up one row.
 	print('\e[2K') // Erase entire current line.
