@@ -3,8 +3,11 @@ src/*.xer
 src/*.exe
 src/*.txt
 src/*.bat
+src/*.db
+src/*.db-journal
 src/xertask
 src/xerpred
 src/xer2json
 src/xerdump
 src/xerdiff
+vls.log
