@@ -269,8 +269,8 @@ fn generate_database(xer_files []string) {
 	db.exec('CREATE TABLE `ACTVTYPE` (`xer_filename` TEXT, `actv_code_type_id` TEXT, `actv_short_len` TEXT, `seq_num` TEXT, `actv_code_type` TEXT, `proj_id` TEXT, `wbs_id` TEXT, `actv_code_type_scope` TEXT, PRIMARY KEY(`xer_filename`,`actv_code_type_id`))')
 	println('[DONE]')
 
-	db.exec('pragma synchronous = off;')
-	db.exec('pragma journal_mode = MEMORY;')
+	db.synchronization_mode(sqlite.SyncMode.off)
+	db.journal_mode(sqlite.JournalMode.off)
 
 	print('Executing INSERT commands...       ')
 	println('')
