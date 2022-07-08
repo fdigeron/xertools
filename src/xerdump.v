@@ -22,11 +22,10 @@ fn main() {
 
 	fp.skip_executable()
 
-	master_arg := fp.bool('consolidated', `c`, false, 'extract all possible combinations of ACTVTYPE and ACTVCODE')
-
+	master_arg := fp.bool('consolidated', `c`, false, 'extract all combinations of ACTVTYPE and ACTVCODE')
 	append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
+	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
 	sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
-	// xer_arg := fp.bool('xer', `x`, false, 'specify an XER instead of using all')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
@@ -42,15 +41,43 @@ fn main() {
 		return
 	}
 
-	dir_elems := os.ls('.') or { panic(err) }
-
 	mut xer_files := []string{}
 
-	for file in dir_elems {
-		if file.ends_with('.xer') {
-			xer_files << file
+	// File with a list of XER filenames was specified...
+	if xer_arg.len >0 {
+		xer_file_list := os.read_lines(xer_arg) or { println("Error. Could not open '$xer_arg' to get XER list. Aborting") return }
+		for file in xer_file_list {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
 		}
 	}
+
+	// Some non-consumed flag args remain...
+	// Add them to xer_files if they are XERs (even if we specified some with -f)
+	if fp.args.len >0 {
+		// remaining non flag args are files (or should be)
+		for file in fp.args {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
+		}
+
+	}
+
+	// All fp args were consumed....
+	// No XER list of files was specified....
+	// So do all XERs in directory
+	if fp.args.len == 0 && xer_arg.len==0 {
+		dir_elems := os.ls('.') or { panic(err) }
+		for file in dir_elems {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
+		}
+	} 
+
+	println("Running on files: $xer_files")
 
 	if master_arg {
 		generate_master_table(xer_files)
@@ -177,33 +204,15 @@ fn generate_master_table(xer_files []string) {
 	}
 }
 
-// SQL Tables
-// [table: 'ACTVTYPE']
-// struct ACTVTYPE {
-// 	id        				  int    [primary; autoincrement; sql: serial] // a field named `id` of integer type must be the first field
-// 	xer_filename         string
-// 	actv_code_type_id    string
-// 	actv_short_len       string
-// 	seq_num              string
-// 	actv_code_type       string
-// 	proj_id              string
-// 	wbs_id               string
-// 	actv_code_type_scope string
-// }
-
 // Generate an SQLite database from XER files.
 // Does not rely on XER library to generate.
 fn generate_database(xer_files []string) {
-	// 	 sql db {
-	//  create table ACTVTYPE	
-	// 	 }
-
 	print('Compiling INSERT commands...       ')
 	mut sql_tables := ['TASK', 'PROJECT', 'CALENDAR', 'TASKPRED', 'TASKACTV', 'ACTVCODE', 'ACTVTYPE']
 
 	mut sql_cmds := []string{}
 	for filename in xer_files {
-		lines := os.read_lines(filename) or { panic(err) }
+		lines := os.read_lines(filename) or { println("\nError reading '$filename'. Perhaps it does not exist? Skipped.") continue }
 		mut line_index := 0
 		mut delimited_row := []string{}
 
@@ -282,12 +291,11 @@ fn generate_database(xer_files []string) {
 			print('\e[2K') // Erase entire current line.
 			println('Inserting...                       [${f64(idx) / cnt_sql * 100.0:0.1f}%]')
 		}
-
 		db.exec_none('$command')
 	}
 	print('\e[1A') // Move cursor up one row.
 	print('\e[2K') // Erase entire current line.
-	println('[DONE]')
+	println('[DONE EXECUTION]')
 }
 
 // fn C.sqlite3_exec(&C.sqlite3,&char,voidptr,voidptr,&&errmsg) int

@@ -10,4 +10,5 @@ src/xerpred
 src/xer2json
 src/xerdump
 src/xerdiff
+src/filelist.test
 vls.log
