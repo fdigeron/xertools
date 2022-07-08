@@ -1,4 +1,4 @@
-![image](logo.png)
+![image](assets/logo.png)
 # Primavera XER Tools
 
 A repository of small utilities that will help in analyzing the project schedules (.xer files) output by the scheduling software "Oracle Primavera".
