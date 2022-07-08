@@ -183,10 +183,11 @@ fn generate_master_table(xer_files []string) {
 		map_actvtype := xer.parse_actvtype(xer_file) or {eprintln("[ERROR] Could not parse ACTVTYPE table in '$xer_file'. Skipping") continue}
 		map_actvcode := xer.parse_actvcode(xer_file) or {eprintln("[ERROR] Could not parse ACTVCODE table in '$xer_file'. Skipping") continue}
 		map_task := xer.parse_task_idkey(xer_file) or {eprintln("[ERROR] Could not parse TASK table in '$xer_file'. Skipping") continue}
+		
+		// parse_taskactv will sort based on actv_code_type_id, actv_code_id.
 		arr_taskactv := xer.parse_taskactv(xer_file) or {eprintln("[ERROR] Could not parse TASKACTV table in '$xer_file'. Skipping") continue}
 
 		// xer_filename,task_id,actv_code_type_id,actv_code_id,proj_id
-		// TODO: should sort arr_taskactv
 		for task in arr_taskactv {
 			actv_code_type := map_actvtype[task.actv_code_type_id].actv_code_type
 			actv_code_name := map_actvcode[task.actv_code_id].actv_code_name
@@ -213,7 +214,7 @@ fn generate_database(xer_files []string) {
 
 	mut sql_cmds := []string{}
 	for filename in xer_files {
-		lines := os.read_lines(filename) or { println("\nError reading '$filename'. Perhaps it does not exist? Skipped.") continue }
+		lines := os.read_lines(filename) or { println("\nError reading file. Perhaps it does not exist? Skipped.") continue }
 		mut line_index := 0
 		mut delimited_row := []string{}
 
