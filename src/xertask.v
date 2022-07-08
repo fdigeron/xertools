@@ -28,6 +28,7 @@ fn main() {
 	mut header_column_arg := fp.string('header', `h`, '17-21,30,31,33,34,37,38', 'specify list of header indexes')
 	column_mapping_arg := fp.bool('mapping', `m`, false, 'output available columns (with indexes)')
 	analytics_arg := fp.bool('analytics', `a`, false, 'perform analytics on latest TASK table')
+	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
@@ -54,16 +55,42 @@ fn main() {
 		return
 	}
 
-	dir_elems := os.ls('.') or { panic(err) }
 	mut xer_files := []string{}
 
-	for file in dir_elems {
-		if file.ends_with('.xer') {
-			xer_files << file
+	// File with a list of XER filenames was specified...
+	if xer_arg.len >0 {
+		xer_file_list := os.read_lines(xer_arg) or { println("Error. Could not open '$xer_arg' to get XER list. Aborting") return }
+		for file in xer_file_list {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
 		}
 	}
 
-	xer_files.sort()
+	// Some non-consumed flag args remain...
+	// Add them to xer_files if they are XERs (even if we specified some with -f)
+	if fp.args.len >0 {
+		// remaining non flag args are files (or should be)
+		for file in fp.args {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
+		}
+
+	}
+
+	// All fp args were consumed....
+	// No XER list of files was specified....
+	// So do all XERs in directory
+	if fp.args.len == 0 && xer_arg.len==0 {
+		dir_elems := os.ls('.') or { println("Could not get list of files in directory. Aborting") return }
+		for file in dir_elems {
+			if file.ends_with('.xer') {
+				xer_files << file
+			}
+		}
+		xer_files.sort()
+	} 
 
 	if analytics_arg {
 		analysis_on_tasks_xers(xer_files)
@@ -81,12 +108,12 @@ fn analysis_on_tasks_xers(xer_files []string) {
 	mut xer_combined := []map[string]xer.XER_task{}
 
 	for xer_file in xer_files {
-		xer_combined << xer.parse_task(xer_file)
+		xer_combined << xer.parse_task(xer_file) or {eprintln("[ERROR] Could not parse file '$xer_file'. Skipping.") continue}
 	}
 
-	latest_xer := xer_combined[xer_files.len - 1].clone() // points to latest XER struct
-	prev_xer := xer_combined[xer_files.len - 2].clone() // points to previous XER struct
-	project_map := xer.parse_project(xer_files[xer_files.len - 1]) // for last-recalc
+	latest_xer := xer_combined[xer_combined.len - 1].clone() // points to latest XER struct
+	prev_xer := xer_combined[xer_combined.len - 2].clone() // points to previous XER struct
+	project_map := xer.parse_project(xer_files[xer_combined.len - 1]) or {eprintln("Could not parse project data.") return }// for last-recalc
 
 	// history data (start dates, end dates, and float)
 	mut start_delta_history := map[string][]f64{}
@@ -284,11 +311,12 @@ fn unpivot_tasks_xers(xer_files []string, p_col []int, h_col []int) {
 	println('unpivot_col\tunpivot_val')
 
 	for index, _ in xer_files {
-		// for each xer, parse the CALENDAR and PROJECT tables
-		calendar_map := xer.parse_calendar(xer_files[index])
-		project_map := xer.parse_project(xer_files[index])
+		// Skip over bogus files that can't be opened.
+		lines := os.read_lines(xer_files[index]) or { continue }
 
-		lines := os.read_lines(xer_files[index]) or { panic(err) }
+		// for each xer, parse the CALENDAR and PROJECT tables
+		calendar_map := xer.parse_calendar(xer_files[index]) or {continue}
+		project_map := xer.parse_project(xer_files[index]) or {continue}
 
 		mut line_index := 0
 

@@ -69,12 +69,13 @@ fn main() {
 	// No XER list of files was specified....
 	// So do all XERs in directory
 	if fp.args.len == 0 && xer_arg.len==0 {
-		dir_elems := os.ls('.') or { panic(err) }
+		dir_elems := os.ls('.') or { println("Could not get list of files in directory. Aborting") return }
 		for file in dir_elems {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
+		xer_files.sort()
 	} 
 
 	println("Running on files: $xer_files")
@@ -179,10 +180,10 @@ fn generate_appended(xer_files []string) {
 
 fn generate_master_table(xer_files []string) {
 	for xer_file in xer_files {
-		map_actvtype := xer.parse_actvtype(xer_file)
-		map_actvcode := xer.parse_actvcode(xer_file)
-		map_task := xer.parse_task_idkey(xer_file)
-		arr_taskactv := xer.parse_taskactv(xer_file)
+		map_actvtype := xer.parse_actvtype(xer_file) or {eprintln("[ERROR] Could not parse ACTVTYPE table in '$xer_file'. Skipping") continue}
+		map_actvcode := xer.parse_actvcode(xer_file) or {eprintln("[ERROR] Could not parse ACTVCODE table in '$xer_file'. Skipping") continue}
+		map_task := xer.parse_task_idkey(xer_file) or {eprintln("[ERROR] Could not parse TASK table in '$xer_file'. Skipping") continue}
+		arr_taskactv := xer.parse_taskactv(xer_file) or {eprintln("[ERROR] Could not parse TASKACTV table in '$xer_file'. Skipping") continue}
 
 		// xer_filename,task_id,actv_code_type_id,actv_code_id,proj_id
 		// TODO: should sort arr_taskactv

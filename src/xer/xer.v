@@ -7,8 +7,8 @@ import os
 
 // Parses TASK from an XER file, and returns a map of the line items
 // in TASK with key task_code.
-pub fn parse_task(xer_file string) map[string]XER_task {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_task(xer_file string) ?map[string]XER_task {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_task{}
@@ -47,8 +47,8 @@ pub fn parse_task(xer_file string) map[string]XER_task {
 
 // Parses TASK from an XER file, and returns a map of the line items
 // in TASK with key task_id.
-pub fn parse_task_idkey(xer_file string) map[string]XER_task {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_task_idkey(xer_file string) ?map[string]XER_task {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_task{}
@@ -87,8 +87,8 @@ pub fn parse_task_idkey(xer_file string) map[string]XER_task {
 
 // Parses ACTVTYPE from an XER file, and returns a map of the line items
 // in ACTVYPE with key actv_code_type_id.
-pub fn parse_actvtype(xer_file string) map[string]XER_actvtype {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_actvtype(xer_file string) ?map[string]XER_actvtype {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_actvtype{}
@@ -126,8 +126,8 @@ pub fn parse_actvtype(xer_file string) map[string]XER_actvtype {
 
 // Parses ACTVTCODE from an XER file, and returns a map of the line items
 // in ACTVTCODE with key actv_code_id.
-pub fn parse_actvcode(xer_file string) map[string]XER_actvcode {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_actvcode(xer_file string) ?map[string]XER_actvcode {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_actvcode{}
@@ -165,8 +165,8 @@ pub fn parse_actvcode(xer_file string) map[string]XER_actvcode {
 
 // Parses TASKACTV from an XER file, and returns an array of the line items
 // in TASKACTV.  Array is sorted based on actv_code_type_id, actv_code_id.
-pub fn parse_taskactv(xer_file string) []XER_taskactv {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_taskactv(xer_file string) ?[]XER_taskactv {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := []XER_taskactv{}
@@ -226,8 +226,8 @@ pub fn parse_taskactv(xer_file string) []XER_taskactv {
 
 // Parses PROJECT from an XER file, and returns a map of the line items
 // in PROJECT with key project_id.
-pub fn parse_project(xer_file string) map[string]XER_project {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_project(xer_file string) ?map[string]XER_project {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_project{}
@@ -266,8 +266,8 @@ pub fn parse_project(xer_file string) map[string]XER_project {
 
 // Parses TASKPRED from an XER file, and returns a map of the line items
 // in TASKPRED with key task_pred_id.
-pub fn parse_pred(xer_file string) map[string]XER_pred {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_pred(xer_file string) ?map[string]XER_pred {
+	lines := os.read_lines(xer_file) or {return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_pred{}
@@ -305,8 +305,8 @@ pub fn parse_pred(xer_file string) map[string]XER_pred {
 
 // Parses CALENDAR from an XER file, and returns a map of the line items
 // in CALENDAR with key clndr_id.
-pub fn parse_calendar(xer_file string) map[string]XER_calendar {
-	lines := os.read_lines(xer_file) or { panic(err) }
+pub fn parse_calendar(xer_file string) ?map[string]XER_calendar {
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_calendar{}

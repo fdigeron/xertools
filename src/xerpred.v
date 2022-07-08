@@ -91,7 +91,7 @@ fn main() {
 		exit(0)
 	}
 
-	lines := os.read_lines(xer_arg) or { panic(err) }
+	lines := os.read_lines(xer_arg) or { eprintln("[ERROR] You must specify an XER file for analysis with the -f flag.\nSee -h for help.") return }
 
 	mut line_index := 0
 
@@ -123,7 +123,7 @@ fn main() {
 
 	mut task_items := map[string]xer.XER_task{}
 	if !minimal_output_arg {
-		task_items = xer.parse_task_idkey(xer_arg)
+		task_items = xer.parse_task_idkey(xer_arg) or {eprintln("[ERROR] Could not parse TASK table. Aborting.") return}
 	}
 
 	// Print output Header....
@@ -228,8 +228,8 @@ fn analyze_drivers(mut drivers_arr []Driver) {
 }
 
 fn print_drivers(mut fout os.File, xer_file string, mut drivers_arr []Driver) {
-	task_items := xer.parse_task_idkey(xer_file)
-	pred_items := xer.parse_pred(xer_file)
+	task_items := xer.parse_task_idkey(xer_file) or {eprintln("[ERROR] Could not parse TASK table. Aborting.") return }
+	pred_items := xer.parse_pred(xer_file)or {eprintln("[ERROR] Could not parse TASKPRED table. Aborting.") return }
 
 	mut relation_map := map[string][]Relation{}
 
