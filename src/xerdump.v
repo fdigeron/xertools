@@ -197,7 +197,7 @@ fn generate_appended(xer_files []string) {
 }
 
 fn generate_master_table(xer_files []string) {
-	mut file_out := os.create('xerdiff_consolidated.txt') or { panic(err) }
+	mut file_out := os.create('xerdump_consolidated.txt') or { panic(err) }
 
 	defer {
 		file_out.close()
