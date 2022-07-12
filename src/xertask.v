@@ -28,6 +28,7 @@ fn main() {
 	mut header_column_arg := fp.string('header', `h`, '17-21,30,31,33,34,37,38', 'specify list of header indexes')
 	column_mapping_arg := fp.bool('mapping', `m`, false, 'output available columns (with indexes)')
 	analytics_arg := fp.bool('analytics', `a`, false, 'perform analytics on latest TASK table')
+	output_arg := fp.string('output', `o`, '', 'specify a filename for the output')
 	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
@@ -58,8 +59,11 @@ fn main() {
 	mut xer_files := []string{}
 
 	// File with a list of XER filenames was specified...
-	if xer_arg.len >0 {
-		xer_file_list := os.read_lines(xer_arg) or { println("Error. Could not open '$xer_arg' to get XER list. Aborting") return }
+	if xer_arg.len > 0 {
+		xer_file_list := os.read_lines(xer_arg) or {
+			println("Error. Could not open '$xer_arg' to get XER list. Aborting")
+			return
+		}
 		for file in xer_file_list {
 			if file.ends_with('.xer') {
 				xer_files << file
@@ -69,31 +73,35 @@ fn main() {
 
 	// Some non-consumed flag args remain...
 	// Add them to xer_files if they are XERs (even if we specified some with -f)
-	if fp.args.len >0 {
+	if fp.args.len > 0 {
 		// remaining non flag args are files (or should be)
 		for file in fp.args {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
-
 	}
 
 	// All fp args were consumed....
 	// No XER list of files was specified....
 	// So do all XERs in directory
-	if fp.args.len == 0 && xer_arg.len==0 {
-		dir_elems := os.ls('.') or { println("Could not get list of files in directory. Aborting") return }
+	if fp.args.len == 0 && xer_arg.len == 0 {
+		dir_elems := os.ls('.') or {
+			println('Could not get list of files in directory. Aborting')
+			return
+		}
 		for file in dir_elems {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
 		xer_files.sort()
-	} 
+	}
 
-	if analytics_arg {
-		analysis_on_tasks_xers(xer_files)
+	if analytics_arg && output_arg.len == 0 {
+		analysis_on_tasks_xers(xer_files, 'xertask_analytics.txt')
+	} else if analytics_arg && output_arg.len != 0 {
+		analysis_on_tasks_xers(xer_files, output_arg)
 	} else {
 		pivot_column := expand_int_string(pivot_column_arg)
 		header_column := expand_int_string(header_column_arg)
@@ -102,18 +110,32 @@ fn main() {
 	}
 }
 
-fn analysis_on_tasks_xers(xer_files []string) {
-	println('xer_filename\tproj_id\ttask_id\ttask_code\ttask_name\ttask_type\tlast_recalc\tis_active\tcurr_duration_days\tcurr_start\tcurr_finish\tprev_appears\tprev_duration_days\tprev_start\tprev_finish\tini_appears\tini_duration_days\tini_start\tini_finish\tsnap_dur_growth_days\tsnap_start_delta_days\tsnap_start_delta_hist\tsnap_start_slip_freq\tsnap_end_delta_days\tsnap_end_delta_hist\tsnap_end_slip_freq\tsnap_has_delta\ttotal_start_delta_days\ttotal_end_delta_days\ttotal_dur_growth\tis_completed\tsnap_completed\trealized_duration\trealized_accuracy\ttotal_float_hr_cnt\ttotal_float_hr_cnt_hist\tfree_float_hr_cnt\tfree_float_hr_cnt_hist')
+fn analysis_on_tasks_xers(xer_files []string, output_file string) {
+	mut file_out := os.create(output_file) or { panic(err) }
+
+	defer {
+		file_out.close()
+	}
+
+	file_out.writeln('xer_filename\tproj_id\ttask_id\ttask_code\ttask_name\ttask_type\tlast_recalc\tis_active\tcurr_duration_days\tcurr_start\tcurr_finish\tprev_appears\tprev_duration_days\tprev_start\tprev_finish\tini_appears\tini_duration_days\tini_start\tini_finish\tsnap_dur_growth_days\tsnap_start_delta_days\tsnap_start_delta_hist\tsnap_start_slip_freq\tsnap_end_delta_days\tsnap_end_delta_hist\tsnap_end_slip_freq\tsnap_has_delta\ttotal_start_delta_days\ttotal_end_delta_days\ttotal_dur_growth\tis_completed\tsnap_completed\trealized_duration\trealized_accuracy\ttotal_float_hr_cnt\ttotal_float_hr_cnt_hist\tfree_float_hr_cnt\tfree_float_hr_cnt_hist') or {
+		panic(err)
+	}
 
 	mut xer_combined := []map[string]xer.XER_task{}
 
 	for xer_file in xer_files {
-		xer_combined << xer.parse_task(xer_file) or {eprintln("[ERROR] Could not parse file '$xer_file'. Skipping.") continue}
+		xer_combined << xer.parse_task(xer_file) or {
+			eprintln("[ERROR] Could not parse file '$xer_file'. Skipping.")
+			continue
+		}
 	}
 
 	latest_xer := xer_combined[xer_combined.len - 1].clone() // points to latest XER struct
 	prev_xer := xer_combined[xer_combined.len - 2].clone() // points to previous XER struct
-	project_map := xer.parse_project(xer_files[xer_combined.len - 1]) or {eprintln("Could not parse project data.") return }// for last-recalc
+	project_map := xer.parse_project(xer_files[xer_combined.len - 1]) or {
+		eprintln('Could not parse project data.')
+		return
+	} // for last-recalc
 
 	// history data (start dates, end dates, and float)
 	mut start_delta_history := map[string][]f64{}
@@ -191,7 +213,9 @@ fn analysis_on_tasks_xers(xer_files []string) {
 	// Do analytics on latest XER only
 	for key, value in latest_xer {
 		// xer_filename, proj_id, task_code, task_name, task_type
-		print('$value.xer_filename\t$value.proj_id\t$value.task_id\t$value.task_code\t$value.task_name\t$value.task_type\t')
+		file_out.write_string('$value.xer_filename\t$value.proj_id\t$value.task_id\t$value.task_code\t$value.task_name\t$value.task_type\t') or {
+			panic(err)
+		}
 
 		// last_recalc, is_active,curr_duration_days, current_start, current_finish
 		recalc_time := time.parse('${project_map[value.proj_id].last_recalc_date}:00') or {
@@ -207,7 +231,9 @@ fn analysis_on_tasks_xers(xer_files []string) {
 			is_active = true
 		}
 
-		print('${project_map[value.proj_id].last_recalc_date}\t$is_active\t${curr_dur_days:0.1f}\t$value.target_start_date\t$value.target_end_date\t')
+		file_out.write_string('${project_map[value.proj_id].last_recalc_date}\t$is_active\t${curr_dur_days:0.1f}\t$value.target_start_date\t$value.target_end_date\t') or {
+			panic(err)
+		}
 
 		// prev_appears, prev_duration_days, prev_start, prev_finish
 		prev_start_time := time.parse('${prev_xer[key].target_start_date}:00') or { time.Time{} }
@@ -215,12 +241,14 @@ fn analysis_on_tasks_xers(xer_files []string) {
 		prev_dur_days := ((prev_end_time - prev_start_time).hours() / 24)
 
 		if compare_strings(prev_xer[key].target_start_date, '') == 0 {
-			print('New\t')
+			file_out.write_string('New\t') or { panic(err) }
 		} else {
-			print('${prev_xer[key].xer_filename}\t')
+			file_out.write_string('${prev_xer[key].xer_filename}\t') or { panic(err) }
 		}
 
-		print('${prev_dur_days:0.1f}\t${prev_xer[key].target_start_date}\t${prev_xer[key].target_end_date}\t')
+		file_out.write_string('${prev_dur_days:0.1f}\t${prev_xer[key].target_start_date}\t${prev_xer[key].target_end_date}\t') or {
+			panic(err)
+		}
 
 		// ini_appears, ini_duration_days, ini_start, ini_finish
 		mut ini_start_time := time.Time{}
@@ -239,7 +267,9 @@ fn analysis_on_tasks_xers(xer_files []string) {
 				}
 				ini_dur_days = ((ini_end_time - ini_start_time).hours() / 24)
 
-				print('${xer[key].xer_filename}\t${ini_dur_days:0.1f}\t$ini_start_time\t$ini_end_time\t')
+				file_out.write_string('${xer[key].xer_filename}\t${ini_dur_days:0.1f}\t$ini_start_time\t$ini_end_time\t') or {
+					panic(err)
+				}
 
 				break
 			}
@@ -250,13 +280,17 @@ fn analysis_on_tasks_xers(xer_files []string) {
 			|| end_delta_history[key][end_delta_history[key].len - 1] != 0 {
 			movement_lastsnap = true
 		}
-		print('${curr_dur_days - prev_dur_days:0.1f}\t${start_delta_history[key][start_delta_history[key].len - 1]}\t${start_delta_history[key]}\t${start_slip_freq[key]:0.2f}\t${end_delta_history[key][end_delta_history[key].len - 1]}\t${end_delta_history[key]}\t${end_slip_freq[key]:0.2f}\t$movement_lastsnap\t')
+		file_out.write_string('${curr_dur_days - prev_dur_days:0.1f}\t${start_delta_history[key][start_delta_history[key].len - 1]}\t${start_delta_history[key]}\t${start_slip_freq[key]:0.2f}\t${end_delta_history[key][end_delta_history[key].len - 1]}\t${end_delta_history[key]}\t${end_slip_freq[key]:0.2f}\t$movement_lastsnap\t') or {
+			panic(err)
+		}
 
 		// total_start_delta_days, total_end_delta_days, total_dur_growth
 		total_start_delta_days := ((curr_start_time - ini_start_time).hours() / 24)
 		total_end_delta_days := ((curr_end_time - ini_end_time).hours() / 24)
 		total_dur_growth := curr_dur_days - ini_dur_days
-		print('${total_start_delta_days:0.1f}\t${total_end_delta_days:0.1f}\t${total_dur_growth:0.1f}\t')
+		file_out.write_string('${total_start_delta_days:0.1f}\t${total_end_delta_days:0.1f}\t${total_dur_growth:0.1f}\t') or {
+			panic(err)
+		}
 
 		// is_completed, snap_completed
 		mut is_completed := false
@@ -267,26 +301,29 @@ fn analysis_on_tasks_xers(xer_files []string) {
 		if compare_strings(prev_xer[key].phys_complete_pct, '100') != 0 && is_completed == true {
 			snap_completed = true
 		}
-		print('$is_completed\t$snap_completed\t')
+		file_out.write_string('$is_completed\t$snap_completed\t') or { panic(err) }
 
 		// realized_duration
 		if is_completed {
-			print('${curr_dur_days:0.1f}\t')
+			file_out.write_string('${curr_dur_days:0.1f}\t') or { panic(err) }
 
 			// realized accuracy
 			if ini_dur_days < 0.001 && curr_dur_days < 0.001 {
-				print('1.00\t')
+				file_out.write_string('1.00\t') or { panic(err) }
 			} else {
-				print('${curr_dur_days / ini_dur_days:0.2f}\t')
+				file_out.write_string('${curr_dur_days / ini_dur_days:0.2f}\t') or { panic(err) }
 			}
 		} else {
-			print('\t\t') // Tab over as not yet completed...
+			file_out.write_string('\t\t') or { panic(err) } // Tab over as not yet completed...
 		}
 
-		print('$value.total_float_hr_cnt\t${total_float_history[key]}\t')
-		print('$value.free_float_hr_cnt\t${free_float_history[key]}')
-
-		print('\n')
+		file_out.write_string('$value.total_float_hr_cnt\t${total_float_history[key]}\t') or {
+			panic(err)
+		}
+		file_out.write_string('$value.free_float_hr_cnt\t${free_float_history[key]}') or {
+			panic(err)
+		}
+		file_out.write_string('\n') or { panic(err) }
 	}
 }
 
@@ -315,8 +352,8 @@ fn unpivot_tasks_xers(xer_files []string, p_col []int, h_col []int) {
 		lines := os.read_lines(xer_files[index]) or { continue }
 
 		// for each xer, parse the CALENDAR and PROJECT tables
-		calendar_map := xer.parse_calendar(xer_files[index]) or {continue}
-		project_map := xer.parse_project(xer_files[index]) or {continue}
+		calendar_map := xer.parse_calendar(xer_files[index]) or { continue }
+		project_map := xer.parse_project(xer_files[index]) or { continue }
 
 		mut line_index := 0
 

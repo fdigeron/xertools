@@ -22,10 +22,11 @@ fn main() {
 
 	fp.skip_executable()
 
-	master_arg := fp.bool('consolidated', `c`, false, 'extract all combinations of ACTVTYPE and ACTVCODE')
-	append_arg := fp.bool('append', `a`, false, 'append results to each file (instead of one for each XER)')
-	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
+	individual_arg := fp.bool('individual', `i`, false, 'extract tables into respective folders')
+	append_arg := fp.bool('append', `a`, false, 'append tables together in a single folder')
+	consolidated_arg := fp.bool('consolidated', `c`, false, 'extract all combinations of ACTVTYPE and ACTVCODE')
 	sql_arg := fp.bool('sql', `s`, false, 'create an sqlite database for querying')
+	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
 	additional_args := fp.finalize() or {
@@ -44,8 +45,11 @@ fn main() {
 	mut xer_files := []string{}
 
 	// File with a list of XER filenames was specified...
-	if xer_arg.len >0 {
-		xer_file_list := os.read_lines(xer_arg) or { println("Error. Could not open '$xer_arg' to get XER list. Aborting") return }
+	if xer_arg.len > 0 {
+		xer_file_list := os.read_lines(xer_arg) or {
+			println("Error. Could not open '$xer_arg' to get XER list. Aborting")
+			return
+		}
 		for file in xer_file_list {
 			if file.ends_with('.xer') {
 				xer_files << file
@@ -55,57 +59,76 @@ fn main() {
 
 	// Some non-consumed flag args remain...
 	// Add them to xer_files if they are XERs (even if we specified some with -f)
-	if fp.args.len >0 {
+	if fp.args.len > 0 {
 		// remaining non flag args are files (or should be)
 		for file in fp.args {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
-
 	}
 
 	// All fp args were consumed....
 	// No XER list of files was specified....
 	// So do all XERs in directory
-	if fp.args.len == 0 && xer_arg.len==0 {
-		dir_elems := os.ls('.') or { println("Could not get list of files in directory. Aborting") return }
+	if fp.args.len == 0 && xer_arg.len == 0 {
+		dir_elems := os.ls('.') or {
+			println('Could not get list of files in directory. Aborting')
+			return
+		}
 		for file in dir_elems {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
 		xer_files.sort()
-	} 
+	}
 
-	println("Running on files: $xer_files")
+	if consolidated_arg == false && append_arg == false && sql_arg == false
+		&& individual_arg == false {
+		println("[ERROR] You must use at least one of the flags '-i','-a','-c','s'.")
+		exit(0)
+	}
 
-	if master_arg {
+	println('Running on files: $xer_files')
+
+	if consolidated_arg {
+		print('Generating Consolidated...       ')
+		flush_stdout()
 		generate_master_table(xer_files)
-		println('[Done]\n')
-		return
+		println('[Done]')
+		flush_stdout()
 	}
 
 	if append_arg {
+		print('Generating Appended...           ')
+		flush_stdout()
 		generate_appended(xer_files)
-		println('[Done]\n')
-		return
+		println('[Done]')
+		flush_stdout()
 	}
 
 	if sql_arg {
+		println('Generating SQLite...           ')
 		generate_database(xer_files)
-		return
+		println('... [Done]')
 	}
 
-	// Else if fall through to here, just execute normal behaviour of dumping
-	// contents to respective folders.
-	for index, _ in xer_files {
-		println('[Analyzing]  ${xer_files[index]}')
+	if individual_arg {
+		print('Generating Individuals....       ')
+		generate_individuals(xer_files)
+		println('[Done]')
+	}
+}
 
+fn generate_individuals(xer_files []string) {
+	for index, _ in xer_files {
 		lines := os.read_lines(xer_files[index]) or { panic(err) }
 
-		dir_name := xer_files[index].all_before_last('.xer')
+		dir_name := os.file_name(xer_files[index].all_before_last('.xer'))
+
 		os.mkdir(dir_name) or {} // Okay if dir exists.
+
 		mut line_index := 0
 		mut table_header := ''
 
@@ -121,14 +144,11 @@ fn main() {
 						file_out.close()
 						break
 					}
-					file_out.writeln(lines[j])?
+					file_out.writeln(lines[j]) or { panic(err) }
 				}
 			}
 		}
 	}
-
-	println('[Done]')
-	println('')
 }
 
 fn generate_appended(xer_files []string) {
@@ -144,8 +164,6 @@ fn generate_appended(xer_files []string) {
 	os.mkdir(dir_name) or {}
 
 	for index, filename in xer_files {
-		println('[Analyzing]  ${xer_files[index]}')
-
 		lines := os.read_lines(xer_files[index]) or { panic(err) }
 
 		mut line_index := 0
@@ -179,13 +197,31 @@ fn generate_appended(xer_files []string) {
 }
 
 fn generate_master_table(xer_files []string) {
+	mut file_out := os.create('xerdiff_consolidated.txt') or { panic(err) }
+
+	defer {
+		file_out.close()
+	}
+
 	for xer_file in xer_files {
-		map_actvtype := xer.parse_actvtype(xer_file) or {eprintln("[ERROR] Could not parse ACTVTYPE table in '$xer_file'. Skipping") continue}
-		map_actvcode := xer.parse_actvcode(xer_file) or {eprintln("[ERROR] Could not parse ACTVCODE table in '$xer_file'. Skipping") continue}
-		map_task := xer.parse_task_idkey(xer_file) or {eprintln("[ERROR] Could not parse TASK table in '$xer_file'. Skipping") continue}
-		
+		map_actvtype := xer.parse_actvtype(xer_file) or {
+			eprintln("[ERROR] Could not parse ACTVTYPE table in '$xer_file'. Skipping")
+			continue
+		}
+		map_actvcode := xer.parse_actvcode(xer_file) or {
+			eprintln("[ERROR] Could not parse ACTVCODE table in '$xer_file'. Skipping")
+			continue
+		}
+		map_task := xer.parse_task_idkey(xer_file) or {
+			eprintln("[ERROR] Could not parse TASK table in '$xer_file'. Skipping")
+			continue
+		}
+
 		// parse_taskactv will sort based on actv_code_type_id, actv_code_id.
-		arr_taskactv := xer.parse_taskactv(xer_file) or {eprintln("[ERROR] Could not parse TASKACTV table in '$xer_file'. Skipping") continue}
+		arr_taskactv := xer.parse_taskactv(xer_file) or {
+			eprintln("[ERROR] Could not parse TASKACTV table in '$xer_file'. Skipping")
+			continue
+		}
 
 		// xer_filename,task_id,actv_code_type_id,actv_code_id,proj_id
 		for task in arr_taskactv {
@@ -193,15 +229,17 @@ fn generate_master_table(xer_files []string) {
 			actv_code_name := map_actvcode[task.actv_code_id].actv_code_name
 			short_name := map_actvcode[task.actv_code_id].short_name
 
-			print('$xer_file\t$actv_code_type\t$actv_code_name\t$short_name')
+			file_out.write_string('$xer_file\t$actv_code_type\t$actv_code_name\t$short_name') or {
+				panic(err)
+			}
 
 			data_arr := map_task[task.task_id].to_array()
 
 			for elem in data_arr[1..] {
-				print('\t$elem')
+				file_out.write_string('\t$elem') or { panic(err) }
 			}
 
-			println('')
+			file_out.writeln('') or { panic(err) }
 		}
 	}
 }
@@ -209,12 +247,15 @@ fn generate_master_table(xer_files []string) {
 // Generate an SQLite database from XER files.
 // Does not rely on XER library to generate.
 fn generate_database(xer_files []string) {
-	print('Compiling INSERT commands...       ')
+	print('\tCompiling INSERT commands...       ')
 	mut sql_tables := ['TASK', 'PROJECT', 'CALENDAR', 'TASKPRED', 'TASKACTV', 'ACTVCODE', 'ACTVTYPE']
 
 	mut sql_cmds := []string{}
 	for filename in xer_files {
-		lines := os.read_lines(filename) or { println("\nError reading file. Perhaps it does not exist? Skipped.") continue }
+		lines := os.read_lines(filename) or {
+			println('\nError reading file. Perhaps it does not exist? Skipped.')
+			continue
+		}
 		mut line_index := 0
 		mut delimited_row := []string{}
 
@@ -257,20 +298,20 @@ fn generate_database(xer_files []string) {
 
 	// Check if database exists, and if so, remove it
 	if os.exists('primavera.db') {
-		println('Deleting existing datase....       [DONE]')
+		println('\tDeleting existing datase....       [DONE]')
 		os.rm('primavera.db') or {
-			println('Failed to remove primavera.db. Aborting.')
+			println('\tFailed to remove primavera.db. Aborting.')
 			return
 		}
 	}
 	db := sqlite.connect('primavera.db') or {
-		println('Error! Could not open database.')
+		println('\tError! Could not open database.')
 		return
 	}
 
 	// Primary key for tables is combination of xer_filename and the p6-unique-id for the specific table
 	// As collating multiple XER files may result in repeated identifiers.
-	print('Executing CREATE TABLE commands... ')
+	print('\tExecuting CREATE TABLE commands... ')
 	db.exec('CREATE TABLE `TASK` (`xer_filename` TEXT, `task_id` TEXT, `proj_id` TEXT, `wbs_id` TEXT, `clndr_id` TEXT, `phys_complete_pct` TEXT, `rev_fdbk_flag` TEXT, `est_wt` TEXT, `lock_plan_flag` TEXT, `auto_compute_act_flag` TEXT, `complete_pct_type` TEXT, `task_type` TEXT, `duration_type` TEXT, `status_code` TEXT, `task_code` TEXT, `task_name` TEXT, `rsrc_id` TEXT, `total_float_hr_cnt` TEXT, `free_float_hr_cnt` TEXT, `remain_drtn_hr_cnt` TEXT, `act_work_qty` TEXT, `remain_work_qty` TEXT, `target_work_qty` TEXT, `target_drtn_hr_cnt` TEXT, `target_equip_qty` TEXT, `act_equip_qty` TEXT, `remain_equip_qty` TEXT, `cstr_date` TEXT, `act_start_date` TEXT, `act_end_date` TEXT, `late_start_date` TEXT, `late_end_date` TEXT, `expect_end_date` TEXT, `early_start_date` TEXT, `early_end_date` TEXT, `restart_date` TEXT, `reend_date` TEXT, `target_start_date` TEXT, `target_end_date` TEXT, `rem_late_start_date` TEXT, `rem_late_end_date` TEXT, `cstr_type` TEXT, `priority_type` TEXT, `suspend_date` TEXT, `resume_date` TEXT, `float_path` TEXT, `float_path_order` TEXT, `guid` TEXT, `tmpl_guid` TEXT, `cstr_date2` TEXT, `cstr_type2` TEXT, `driving_path_flag` TEXT, `act_this_per_work_qty` TEXT, `act_this_per_equip_qty` TEXT, `external_early_start_date` TEXT, `external_late_end_date` TEXT, `cbs_id` TEXT, `pre_pess_start_date` TEXT, `pre_pess_finish_date` TEXT, `post_pess_start_date` TEXT, `post_pess_finish_date` TEXT, `create_date` TEXT, `update_date` TEXT, `create_user` TEXT, `update_user` TEXT, `location_id` TEXT, `control_updates_flag` TEXT, PRIMARY KEY(`xer_filename`,`task_id`))')
 	db.exec('CREATE TABLE `PROJECT` (`xer_filename` TEXT, `proj_id` TEXT, `fy_start_month_num` TEXT, `rsrc_self_add_flag` TEXT, `allow_complete_flag` TEXT, `rsrc_multi_assign_flag` TEXT, `checkout_flag` TEXT, `project_flag` TEXT, `step_complete_flag` TEXT, `cost_qty_recalc_flag` TEXT, `batch_sum_flag` TEXT, `name_sep_char` TEXT, `def_complete_pct_type` TEXT, `proj_short_name` TEXT, `acct_id` TEXT, `orig_proj_id` TEXT, `source_proj_id` TEXT, `base_type_id` TEXT, `clndr_id` TEXT, `sum_base_proj_id` TEXT, `task_code_base` TEXT, `task_code_step` TEXT, `priority_num` TEXT, `wbs_max_sum_level` TEXT, `strgy_priority_num` TEXT, `last_checksum` TEXT, `critical_drtn_hr_cnt` TEXT, `def_cost_per_qty` TEXT, `last_recalc_date` TEXT, `plan_start_date` TEXT, `plan_end_date` TEXT, `scd_end_date` TEXT, `add_date` TEXT, `last_tasksum_date` TEXT, `fcst_start_date` TEXT, `def_duration_type` TEXT, `task_code_prefix` TEXT, `guid` TEXT, `def_qty_type` TEXT, `add_by_name` TEXT, `web_local_root_path` TEXT, `proj_url` TEXT, `def_rate_type` TEXT, `add_act_remain_flag` TEXT, `act_this_per_link_flag` TEXT, `def_task_type` TEXT, `act_pct_link_flag` TEXT, `critical_path_type` TEXT, `task_code_prefix_flag` TEXT, `def_rollup_dates_flag` TEXT, `use_project_baseline_flag` TEXT, `rem_target_link_flag` TEXT, `reset_planned_flag` TEXT, `allow_neg_act_flag` TEXT, `sum_assign_level` TEXT, `last_fin_dates_id` TEXT, `last_baseline_update_date` TEXT, `cr_external_key` TEXT, `apply_actuals_date` TEXT, `matrix_id` TEXT, `last_level_date` TEXT, `last_schedule_date` TEXT, `px_enable_publication_flag` TEXT, `px_last_update_date` TEXT, `px_priority` TEXT, `control_updates_flag` TEXT, `hist_interval` TEXT, `hist_level` TEXT, `schedule_type` TEXT, `location_id` TEXT, `loaded_scope_level` TEXT, `export_flag` TEXT, `new_fin_dates_id` TEXT, `baselines_to_export` TEXT, `baseline_names_to_export` TEXT, `sync_wbs_heir_flag` TEXT, `sched_wbs_heir_type` TEXT, `wbs_heir_levels` TEXT, `next_data_date` TEXT, `close_period_flag` TEXT, `sum_refresh_date` TEXT, `trsrcsum_loaded` TEXT, PRIMARY KEY(`xer_filename`,`proj_id`))')
 	db.exec('CREATE TABLE `CALENDAR` (`xer_filename` TEXT, `clndr_id` TEXT, `default_flag` TEXT, `clndr_name` TEXT, `proj_id` TEXT, `base_clndr_id` TEXT, `last_chng_date` TEXT, `clndr_type` TEXT, `day_hr_cnt` TEXT, `week_hr_cnt` TEXT, `month_hr_cnt` TEXT, `year_hr_cnt` TEXT, `rsrc_private` TEXT, `clndr_data` TEXT, PRIMARY KEY(`xer_filename`,`clndr_id`))')
@@ -283,7 +324,7 @@ fn generate_database(xer_files []string) {
 	db.synchronization_mode(sqlite.SyncMode.off)
 	db.journal_mode(sqlite.JournalMode.off)
 
-	print('Executing INSERT commands...       ')
+	print('\tExecuting INSERT commands...       ')
 	println('')
 
 	cnt_sql := sql_cmds.len
@@ -291,13 +332,13 @@ fn generate_database(xer_files []string) {
 		if idx % 10000 == 0 {
 			print('\e[1A') // Move cursor up one row.
 			print('\e[2K') // Erase entire current line.
-			println('Inserting...                       [${f64(idx) / cnt_sql * 100.0:0.1f}%]')
+			println('\tInserting...                       [${f64(idx) / cnt_sql * 100.0:0.1f}%]')
 		}
 		db.exec_none('$command')
 	}
 	print('\e[1A') // Move cursor up one row.
 	print('\e[2K') // Erase entire current line.
-	println('[DONE EXECUTION]')
+	println('\t[DONE EXECUTION]')
 }
 
 // fn C.sqlite3_exec(&C.sqlite3,&char,voidptr,voidptr,&&errmsg) int
