@@ -34,7 +34,8 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				}
 			}
 
-			if compare_strings(user_in, 'y\n') == 0 || compare_strings(user_in, 'y\r\n') == 0 || force_update == true {
+			if compare_strings(user_in, 'y\n') == 0 || compare_strings(user_in, 'y\r\n') == 0
+				|| force_update == true {
 				print('[1/4] Backing up old version... ')
 				os.mv('$file', '${file}.bak') or {
 					println("[FAIL]\nError moving file '$file'. Aborting")
