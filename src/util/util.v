@@ -10,7 +10,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 	println('Checking for updates... ')
 
 	md5_curr := md5.sum(os.read_bytes(os.args[0]) or {
-		println('Error calculating existing MD5 sum. Aborting.')
+		println('Error calculating existing MD5 sum! Aborting.')
 		return
 	}).hex()
 	println('MD5 current: $md5_curr')
