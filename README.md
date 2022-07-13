@@ -221,7 +221,11 @@ Along with two additional columns of the unpivot header and values for
 | ini_finish   | Initial line item target end date        |
 | snap_dur_growth_days   |   curr_duration_days *less* prev_duration_days     |
 | snap_start_delta_days   | curr_start *less*  prev_start      |
+| snap_start_delta_hist | The history of snap_start_delta_days (from oldest to newest)      |
+| snap_start_slip_freq | # of non-zero values in snap_start_delta_hist *divided by* # elements |
 | snap_end_delta_days   | curr_finish *less* prev_finish        |
+| snap_end_delta_hist | The history of snap_end_delta_days (from oldest to newest)      |
+| snap_end_slip_freq | # of non-zero values in snap_end_delta_hist *divided by* # elements |
 | snap_has_delta   | True if  snap_start_delta_days > 0 or snap_end_delta_days > 0   |
 | total_start_delta_days   | curr_start *less* ini_start        |
 | total_end_delta_days   | curr_finish *less*  ini_finish       |
@@ -230,6 +234,10 @@ Along with two additional columns of the unpivot header and values for
 | snap_completed   | True if is-completed and previous phys_complete_pct < 100   |
 | realized_duration   | Final curr_duration_days when is_completed = true        |
 | realized_accuracy   | curr_duration_days *divided by* ini_duration_days        |
+| total_float_hr_cnt   | The latest total float hour count       |
+| total_float_hr_cnt_hist   | The history of total float hour count (from oldest to newest)        |
+| free_float_hr_cnt   | The latest free float hour count       |
+| free_float_hr_cnt_hist   | The history of free float hour count (from oldest to newest)        |
 
 ----
 
