@@ -12,3 +12,8 @@ src/xerdump
 src/xerdiff
 src/filelist.test
 vls.log
+xertask
+xerpred
+xer2json
+xerdump
+xerdiff
