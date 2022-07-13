@@ -55,6 +55,8 @@ jobs:
   
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
+        with:
+          tag_name: beta
 
       - name: release
         uses: actions/create-release@v1
