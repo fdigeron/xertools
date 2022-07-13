@@ -27,8 +27,8 @@ jobs:
       
       - name: Build ${{ github.event.repository.name }}
         run: |
-          v xerdump.v
-          v xerdiff.v
+          v src/xerdump.v
+          v src/xerdiff.v
 
       - name: Run Tests
         run: v test .
