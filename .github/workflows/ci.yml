@@ -66,6 +66,12 @@ jobs:
         run: |
             ./build.sh
 
+      - name: Make zips
+        working-directory: src
+        run: |
+            zip xertools_latest_win64.zip xerdiff.exe xerdump.exe xertask.exe xerpred.exe xer2json.exe
+            zip xertools_latest_linux.zip xerdiff xerdump xertask xerpred xer2json
+
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
         with:
@@ -81,3 +87,5 @@ jobs:
             xerdiff.exe
             xerpred.exe
             xer2json.exe
+            xertools_latest_win64.zip
+            xertools_latest_linux.zip
