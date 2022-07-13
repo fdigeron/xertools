@@ -21,7 +21,7 @@ jobs:
           check-latest: true
       
       - name: Install V
-      - uses: vlang/setup-v@v1
+        uses: vlang/setup-v@v1
      # - name: Build
      #   run: |
      #     echo %VFLAGS%
