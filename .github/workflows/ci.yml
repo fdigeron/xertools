@@ -11,9 +11,9 @@ jobs:
         os: ["ubuntu-latest"]
     runs-on: ${{ matrix.os }}
   
-  steps:
+    steps:
+      - uses: vlang/setup-v@v1
       - name: Install V
-        uses: vlang/setup-v@v1
         with:
           check-latest: true
 
