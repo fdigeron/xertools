@@ -50,9 +50,15 @@ fn main() {
 	additional_args.join_lines()
 
 	if update_arg {
-		util.github_update('chipnetics', 'xertools', 'xerpred.exe')
+		$if linux {
+			util.github_update('chipnetics', 'xertools', 'xerpred')
+		} $else {
+			util.github_update('chipnetics', 'xertools', 'xerpred.exe')
+		}
+
 		return
 	}
+
 	mut xer_files := []string{}
 
 	// File with a list of XER filenames was specified...

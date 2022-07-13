@@ -32,7 +32,12 @@ fn main() {
 	additional_args.join_lines()
 
 	if update_arg {
-		util.github_update('chipnetics', 'xertools', 'xer2json.exe')
+		$if linux {
+			util.github_update('chipnetics', 'xertools', 'xer2json')
+		} $else {
+			util.github_update('chipnetics', 'xertools', 'xer2json.exe')
+		}
+
 		return
 	}
 

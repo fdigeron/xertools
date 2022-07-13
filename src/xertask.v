@@ -41,7 +41,12 @@ fn main() {
 	additional_args.join_lines()
 
 	if update_arg {
-		util.github_update('chipnetics', 'xertools', 'xertask.exe')
+		$if linux {
+			util.github_update('chipnetics', 'xertools', 'xertask')
+		} $else {
+			util.github_update('chipnetics', 'xertools', 'xertask.exe')
+		}
+
 		return
 	}
 
