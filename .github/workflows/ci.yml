@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    paths:
-      - "**.v"
+    #paths:
+    #  - "**.v"
     branches: [main]
 
 jobs:
