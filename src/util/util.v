@@ -78,13 +78,21 @@ pub fn github_update(username string, repo string, file string, force_update boo
 					return
 				}
 
+				// Deleting old version in Windows will fail as the moved copy (to .bak)
+				// is the active file in Task Manager; so it cannot delete a running process.
 				print('[4/4] Deleting old version...')
-				os.rm('${file}.bak') or {
-					println("[FAIL]\nError deleting file '${file}.bak'. Aborting")
+				$if linux {
+					os.rm('${file}.bak') or {
+						println("[FAIL]\nError deleting file '${file}.bak'. Delete manually.")
+						return
+					}
+				} $else {
+					println('[Must delete manually in Windows]')
 					return
 				}
 				println('\t\t[DONE]')
 			} else {
+				// User did not enter 'y' and no force-update parameter.
 				println('Update aborted.')
 			}
 		} else {
