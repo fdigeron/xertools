@@ -400,7 +400,6 @@ fn print_drivers(xer_files []string) []Driver {
 						panic(err)
 					}
 
-					// Save to struct
 					mut a_driver := Driver{}
 					a_driver.xer_name = xer_file
 					a_driver.task_id = key
