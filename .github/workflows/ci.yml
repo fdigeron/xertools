@@ -50,20 +50,10 @@ jobs:
         env:
           VJOBS: 1
 
-      - name: Make production XERTASK
-        run:  v -prod src/xertask.v -o xertask
-
-      - name: Make production XERDIFF
-        run:  v -prod src/xerdiff.v -o xerdiff
-
-      - name: Make production XERDUMP
-        run:  v -prod src/xerdump.v -o xerdump
-      
-      - name: Make production XERPRED
-        run:  v -prod src/xerpred.v -o xerpred
-
-      - name: Make production XER2JSON
-        run:  v -prod src/xer2json.v -o xer2json
+      - name: Make production binaries
+        run: |
+        cd src
+        ./build.sh
   
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
