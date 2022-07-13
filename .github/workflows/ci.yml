@@ -7,6 +7,27 @@ on:
     branches: [main]
 
 jobs:
+  windows-build:
+  runs-on: windows-2019
+    env:
+      VFLAGS: -cc msvc
+      VJOBS: 1
+      VTEST_SHOW_START: 1
+    steps:
+      - uses: vlang/checkout@v2
+      - uses: vlang/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Build
+        run: |
+          echo %VFLAGS%
+          echo $VFLAGS
+          .\make.bat -msvc
+          .\v.exe self
+      - name: Ensure code is well formatted
+        run: |
+          .\v.exe fmt -verify .
+
   build:
     strategy:
       matrix:
