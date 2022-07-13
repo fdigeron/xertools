@@ -44,11 +44,13 @@ For Windows users, if you want to pass optional command line arguments to an exe
 
 1. Navigate to the directory of the utility.
 2. In Windows Explorer type 'cmd' into the path navigation bar.
-3. Type the name of the exe along with the optional argument (i.e. `utilityname.exe --help` ).
+3. Type the name of the exe along with the optional argument (i.e. `xerdump.exe --help` ).
+
+For users who cannot learn the command line, or have no intention of automating their work process via batch-file scripting, there is a graphical front-end available [here](https://github.com/chipnetics/xertools_gui).  *However, it is highly recommended to use the tools via command line for maximum flexibility.*
 
 # XER Ordering and Date Conventions
 
-When there's more than one .xer input file expected, and you haven't manually specified the order to analyze files; the input files are parsed alphabetically. 
+When there's more than one .xer input file expected, and you haven't manually specified the order to analyze files, the input files are parsed alphabetically. 
 
 Therefore it is important that file naming follow the [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) date convention. Input files should be named starting with YYYYMMDD or YYYY-MM-DD, as these are guaranteed to sort chronologically as well as alphabetically.
 
@@ -101,6 +103,8 @@ Options:
 
 *SQL mode* ::: xerdump will create a database `primavera.db` with all the tables from all the XERs dumped
 
+NB: You can run more than one mode at once.
+
 **Optional Command Line Arguments** 
 
 ```
@@ -130,7 +134,6 @@ Options:
 *Analytics mode* ::: xertask will output analytical data to `xertask_analytics.txt`.
 
 **Optional Command Line Arguments** 
-
 
 ```
 Options:
