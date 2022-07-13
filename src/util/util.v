@@ -10,7 +10,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 	println('Checking for updates... ')
 
 	md5_curr := md5.sum(os.read_bytes(os.args[0]) or {
-		println('Error checking for update. Aborting.')
+		println('Error calculating existing MD5 sum. Aborting.')
 		return
 	}).hex()
 	println('MD5 current: $md5_curr')
@@ -51,10 +51,16 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				println('\t\t[DONE]')
 
 				print('[3/4] Verifying MD5 of download...')
-				md5_new := md5.sum(os.read_bytes(file) or {
+				mut md5_new := md5.sum(os.read_bytes(file) or {
 					println('Error checking MD5. Aborting.')
 					return
 				}).hex()
+
+				// on linux need to change to execute permssion, if it fails
+				// set md5_new to "" so next conditions fail.
+				$if linux {
+					os.chmod(file, 0o755) or { md5_new = '' }
+				}
 
 				if compare_strings(md5_new, md5_latest) == 0 {
 					println('\t[DONE]')
