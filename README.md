@@ -15,15 +15,7 @@ By default, these utilities will output only what's _relevant_.  What is meant b
 
 # Pre-Compiled Binaries
 
-Binaries (.exe) for Windows OS have been pre-compiled and can be found in the 'bin' folder.
-
-With git, you can download all the latest source and binaries with `git clone https://github.com/chipnetics/xertools`
-
-Alternatively, if you don't have git installed:
-
-1. Download the latest release [here](https://github.com/chipnetics/xertools/releases)
-2. Unzip to a local directory.
-3. Navigate to 'bin' directory for executables.
+Binaries (.exe) for Windows and Linux have been pre-compiled and can be found in the [Releases on Github](https://github.com/chipnetics/xertools/releases).
 
 # Compiling from Source
 
@@ -54,15 +46,15 @@ For Windows users, if you want to pass optional command line arguments to an exe
 2. In Windows Explorer type 'cmd' into the path navigation bar.
 3. Type the name of the exe along with the optional argument (i.e. `utilityname.exe --help` ).
 
-# Date Conventions
+# XER Ordering and Date Conventions
 
-When there's more than one .xer input file expected, input files are parsed alphabetically. Therefore it is important that file naming follow the [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) date convention.
+When there's more than one .xer input file expected, and you haven't manually specified the order to analyze files; the input files are parsed alphabetically. 
 
-Simply stated, this means input files should be named starting with YYYYMMDD or YYYY-MM-DD, as these are guaranteed to sort chronologically as well as alphabetically.  Notwithstanding, this simply amounts to respectfully sane file organization.
+Therefore it is important that file naming follow the [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) date convention. Input files should be named starting with YYYYMMDD or YYYY-MM-DD, as these are guaranteed to sort chronologically as well as alphabetically.
 
 # Comparing to Baselines
 
-With the date conventions above in mind, it is possible to generate comparisons to baselines by ensuring the baseline schedule sorts first alphabetically. As a suggestion, an easy way to flag your baseline .xer and have it sort first is by simple naming it `0000.xer` (as one example).
+With the date conventions above in mind, it is possible to generate comparisons to baselines by ensuring the baseline schedule sorts first alphabetically, or is specified as the first file.
 
 # Viewing Large Files
 
@@ -72,53 +64,85 @@ As an aside, the author recommends the excellent tool _EmEditor_ by Emurasoft fo
 
 # Utilities
 
+All utilities can be updated via the command line.  This will check the Releases for the latest pre-built binaries and download it for that tool.
+
 ## XER Difference
 ### xerdiff.exe (Windows) | xerdiff (Linux)
-> Identify what task codes have been added or deleted between 2 or more XER files. The utility will parse each successive pair of .xer files.  That is, if you have three xer files (A.xer, B.xer, C.xer) it will compare A-with-B and then B-with-C.  Files are parsed alphabetically.  There is no limit to the number of .xer files that can be inputted.
+> Identify what task codes have been added or deleted between 2 or more XER files. The utility will parse each successive pair of .xer files.  That is, if you have three xer files (A.xer, B.xer, C.xer) it will compare A-with-B and then B-with-C.  There is no limit to the number of .xer files that can be inputted.
 
-**Input:** Two or more .xer files, in the same directory as xerdiff.exe
+**Input:** Two or more .xer files
 
 **Output:** xerdiff.txt, in the same directory as xerdiff.exe
 
 **Optional Command Line Arguments** 
 
-> `xerdiff.exe --full`  
-Outputs all field columns from XER TASK table (default is Task Code and Task Name only).
-
+```
+Options:
+  -f, --xerlist <string>    specify a file with a list of XER files to process
+  -u, --update              check for tool updates
+  -z, --force-update        check for tool updates, auto-install if available
+  -h, --help                display this help and exit
+  --version                 output version information and exit
+```
 ---
 ## XER Dump
 ### bin/xerdump.exe 
-> Extract all embedded tables within a .xer to individual .txt files.  That is, if the input file is XYZ.xer, xerdump will create a folder 'XYZ' and extract all tables in the xer (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) within that folder.  It will continue this process for all .xer files in the directory. There is no limit to the number of .xer files that can be inputted.
+> Extract all embedded tables within a .xer to either individual .txt files, single .txt files, or a SQLite database. It will continue this process for all .xer files. There is no limit to the number of .xer files that can be inputted.
 
-**Input:** One or more .xer files, in the same directory as xerdump.exe
+**Input:** One or more .xer files
 
-**Output:** Various .txt files for each input XER, in individual folders, in the same directory as xerdump.exe
+**Output:** 
+
+*Individual mode:* :: xerdump will create folders with the same name as the XERs, and extract all tables in the xer (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to the respective folders.
+
+*Append mode:* :: xerdump will create 1 folder named 'combined' and extract all tables in the xers (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to respective .txt files; appending to them for each xer. 
+
+*Consolidated mode:* :: xerdump will create a file 'xerdump_consolidated.txt' with all possible combinations of ACTVTYPE, ACTVCODE and TASK.
+
+*SQL mode:* :: xerdump will create a database 'primavera.db' with all the tables from all the XERs dumped
 
 **Optional Command Line Arguments** 
 
-_No optional arguments at this time._
-
+```
+Options:
+  -i, --individual          extract tables into respective folders
+  -a, --append              append tables together in a single folder
+  -c, --consolidated        extract all combinations of ACTVTYPE and ACTVCODE
+  -s, --sql                 create an sqlite database for querying
+  -f, --xerlist <string>    specify a file with a list of XER files to process
+  -u, --update              check for tool updates
+  -z, --force-update        check for tool updates, auto-install if available
+  -h, --help                display this help and exit
+  --version                 output version information and exit
+```
 ----
 
 ## XER Task
 ### xertask.exe (Windows) | xertask (Linux)
->  Transform XER TASK data, and also ajoin it to the PROJECT and CALENDAR tables.  This tool can also perform a detailed analysis on the XER TASK table as an alternative mode of operation.
+>  Transform XER TASK data, with options to ajoin the PROJECT and CALENDAR tables.  This tool can also perform a detailed analysis on the XER TASK table as an alternative mode of operation.
 
-**Input:** One or more .xer files, in the same directory as xertask.exe
+**Input:** One or more .xer files
 
-**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to standard output (stdout).
+**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to 'xertask_analytics.txt'.
 
 **Optional Command Line Arguments** 
 
-```  
+
+```
 Options:
   -p, --pivot <string>      specify list of pivot indexes
   -h, --header <string>     specify list of header indexes
   -m, --mapping             output available columns (with indexes)
   -a, --analytics           perform analytics on latest TASK table
+  -o, --output <string>     specify a filename for the output
+  -f, --xerlist <string>    specify a file with a list of XER files to process
+  -u, --update              check for tool updates
+  -z, --force-update        check for tool updates, auto-install if available
   -h, --help                display this help and exit
   --version                 output version information and exit
-```  
+
+```
+
 **Examples using pivot (-p), header (-h), and mapping (-m) flags:**
 
 > To get a list of all the available columns to select in your query:
@@ -206,51 +230,67 @@ Along with two additional columns of the unpivot header and values for
 ### xerpred.exe (Windows) | xerpred (linux)
 >  Tool that will output a list of every task code with all its predecessors, descending recursively to the specified depth.  For instance if activity A has predecessors B and C; the tool will continue to show the predecessors of B and C (say D, E, F), and then the predecessors of D,E,F - continuing on and on until there are none left to process.  _As complex and long schedules can lead to very large file sizes, you can specify the depth limit to process up until._
 
->This tool can also output the list of schedule drivers; such as those indicated by the "Driver" flag in the relationships table in P6.
+>This tool can also output the list of schedule drivers; such as those indicated by the "Driver" flag in the relationships table in P6, and display analytics regarding how drivers were added or deleted from XER-to-XER.
 
-**Input:** One .xer files, in the same directory as xerpred.exe
+**Input:** One or more .xer files.
 
-**Output:** Outputs to standard output the complete list of predecessors to the specified depth level [default depth of 5].  Or in drivers mode (specified with -d flag), will output the list of schedule drivers to standard output (stdout).
+**Output:** 
+
+*Predecessors mode:* :: Outputs to 'xerpred_predecessors.txt' the complete list of predecessors to the specified depth level [default depth of 5].
+
+*Drivers mode:* :: Output the list of schedule drivers to 'xerpred_drivers.txt' and 'xerpred_drivers_analysis.txt'
 
 **Optional Command Line Arguments** 
 
 ```  
 Options:
-  -f, --xer <string>        specify the XER for analysis
-  -m, --minimal             output only task-id records
+  -p, --predecessors        output schedule predecessors
   -l, --depth <int>         specify max predecessor depth [default:5]
-  -d, --drivers             output schedule drivers and exit
+  -m, --minimal             output only task-id records
+  -d, --drivers             output schedule drivers
+  -f, --xerlist <string>    specify a file with a list of XER files to process
+  -u, --update              check for tool updates
+  -z, --force-update        check for tool updates, auto-install if available
   -h, --help                display this help and exit
   --version                 output version information and exit
 ```  
+ 
 **Basic example with full output, and no depth specified (default of 5)**
 
-`xerpred.exe -f myprojectschedule.xer`
+`xerpred.exe myprojectschedule.xer`
 
 **Basic example with full output, and depth of 10**
 
 >Note that file sizes can start to get large at this depth...
 
-`xerpred.exe -f myprojectschedule.xer --depth 10`
+`xerpred.exe myprojectschedule.xer --depth 10`
 
 **Example with minimal output**
 > Useful when you intend to join the results with other data tables, such as those from xerdump.exe, to minimize disk space usage.
 
-`xerpred.exe -f myprojectschedule.xer --minimal`
+`xerpred.exe myprojectschedule.xer --minimal`
 
 **Example of outputting the schedule drivers only**
 
-`xerpred.exe -f myprojectschedule.xer --drivers`
+`xerpred.exe myprojectschedule.xer --drivers`
 
 --------
-
 ## XER to JSON (xer2json)
 ### xer2json.exe (windows) | xer2json (linux)
 >  Convert an XER file to JSON format for usage in other tools.
 
-**Input:** One or more .xer files, in the same directory as xer2json.
+**Input:** One or more .xer files.
 
 **Output:** Writes a json file with the same filename as the XER.  Such that abc.xer will be written as JSON to abc.json.
 
+**Optional Command Line Arguments** 
+
+```  
+Options:
+  -u, --update              check for tool updates
+  -z, --force-update        check for tool updates, auto-install if available
+  -h, --help                display this help and exit
+  --version                 output version information and exit
+```  
 ------------
 
