@@ -17,11 +17,11 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v2
-        with:
-          check-latest: true
-      
+
       - name: Install V
         uses: vlang/setup-v@v1
+        with:
+          check-latest: true
      # - name: Build
      #   run: |
      #     echo %VFLAGS%
@@ -31,6 +31,10 @@ jobs:
       - name: Symlink
         run: |
           C:\hostedtoolcache\windows\v\0.3.0\x64\v.exe symlink
+
+      - name: Build
+        run: |
+          v -prod src/xerdiff.v
 
   build:
     strategy:
