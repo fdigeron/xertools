@@ -58,7 +58,7 @@ With the date conventions above in mind, it is possible to generate comparisons 
 
 # Viewing Large Files
 
-As an aside, the author recommends the excellent tool _EmEditor_ by Emurasoft for manually editing or viewing large text-based files for data science & analytics. Check out the tool [here](https://www.emeditor.com/).  _EmEditor_ is paid software but well worth the investment to increase effeciency.
+The author recommends the excellent tool _EmEditor_ by Emurasoft for manually editing or viewing large text-based files for data science & analytics. Check out the tool [here](https://www.emeditor.com/).  _EmEditor_ is paid software but well worth the investment to increase effeciency.
 
 *** 
 
@@ -86,20 +86,20 @@ Options:
 ```
 ---
 ## XER Dump
-### bin/xerdump.exe 
+### xerdump.exe (Windows) | xerdump (Linux)
 > Extract all embedded tables within a .xer to either individual .txt files, single .txt files, or a SQLite database. It will continue this process for all .xer files. There is no limit to the number of .xer files that can be inputted.
 
 **Input:** One or more .xer files
 
 **Output:** 
 
-*Individual mode:* :: xerdump will create folders with the same name as the XERs, and extract all tables in the xer (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to the respective folders.
+*Individual mode* ::: xerdump will create an individual folder for each XER, and extract all tables in the xer (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to the respective folders.
 
-*Append mode:* :: xerdump will create 1 folder named 'combined' and extract all tables in the xers (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to respective .txt files; appending to them for each xer. 
+*Append mode* ::: xerdump will create 1 folder named 'combined' and extract all tables in the xers (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to respective .txt files; appending to them for each xer. 
 
-*Consolidated mode:* :: xerdump will create a file `xerdump_consolidated.txt` with all possible combinations of ACTVTYPE, ACTVCODE and TASK.
+*Consolidated mode* ::: xerdump will create a file `xerdump_consolidated.txt` with all possible combinations of ACTVTYPE, ACTVCODE and TASK.
 
-*SQL mode:* :: xerdump will create a database `primavera.db` with all the tables from all the XERs dumped
+*SQL mode* ::: xerdump will create a database `primavera.db` with all the tables from all the XERs dumped
 
 **Optional Command Line Arguments** 
 
@@ -123,7 +123,11 @@ Options:
 
 **Input:** One or more .xer files
 
-**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to `xertask_analytics.txt`.
+**Output:** 
+
+*Normal mode* ::: xertask outputs to standard output the requested columns along with the requested unpivot columns.
+
+*Analytics mode* ::: xertask will output analytical data to `xertask_analytics.txt`.
 
 **Optional Command Line Arguments** 
 
