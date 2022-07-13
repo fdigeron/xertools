@@ -1,5 +1,5 @@
 // Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.
-// Use of this source code (/program) is governed by an MIT license,
+// Use of this source code (/program) is governed by a GPLV3 license,
 // that can be found in the LICENSE file. Do not remove this header.
 import xer
 import os
@@ -15,7 +15,7 @@ fn main() {
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('xerdiff')
 
-	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by a GPLV3 license,\nthat can be found in the LICENSE file.')
 
 	fp.description('\nPrints the difference between 2 or more XER files.\nThis software will -NOT- make any changes to your XER files.')
 

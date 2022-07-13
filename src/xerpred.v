@@ -1,5 +1,5 @@
 // Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.
-// Use of this source code (/program) is governed by an MIT license,
+// Use of this source code (/program) is governed by a GPLV3 license,
 // that can be found in the LICENSE file. Do not remove this header.
 import os
 import flag
@@ -28,7 +28,7 @@ fn main() {
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('xerpred')
 
-	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by an MIT license,\nthat can be found in the LICENSE file.')
+	fp.version('${pre_built_str}Copyright (c) 2022 jeffrey -at- ieee.org. All rights reserved.\nUse of this source code (/program) is governed by a GPLV3 license,\nthat can be found in the LICENSE file.')
 
 	fp.description('\nLogic-traces all the XER predecessor line items.\nOutput is of [parent-node]->[child-node] relations, up to specified depth.\nThis software will -NOT- make any changes to your XER files.')
 
