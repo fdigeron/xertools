@@ -4,8 +4,6 @@ on:
   push:
     paths:
       - "**.v"
-    paths-ignore:
-      - "**.md"
     branches: [main]
 
 jobs:
