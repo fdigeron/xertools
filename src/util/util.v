@@ -40,7 +40,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				|| force_update == true {
 				print('[1/4] Backing up old version... ')
 				// Remove any existing backup (in Windows can't mv if exists)
-				// Probably should be changed in vlib.
+				// Probably should be changed in vlib...
 				os.rm('${file}.bak') or {}
 				os.mv('$file', '${file}.bak') or {
 					println("[FAIL]\nError moving file '$file'. Aborting")
