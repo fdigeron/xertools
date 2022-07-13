@@ -51,7 +51,7 @@ jobs:
           VJOBS: 1
 
       - name: Make Binary
-        run: 
+        run: |
           v -prod src/xertask.v -o xertask
           v -prod src/xerdump.v -o xerdump
           v -prod src/xerdiff.v -o xerdiff
