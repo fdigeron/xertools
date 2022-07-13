@@ -15,6 +15,12 @@ jobs:
         VJOBS: 1
         VTEST_SHOW_START: 1
     steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v2
+        with:
+          check-latest: true
+      
+      - name: Install V
       - uses: vlang/setup-v@v1
      # - name: Build
      #   run: |
@@ -22,9 +28,9 @@ jobs:
      #     echo $VFLAGS
      #     .\make.bat -msvc
      #     .\v.exe self
-      - name: Ensure code is well formatted
+      - name: Symlink
         run: |
-          C:\hostedtoolcache\windows\v\0.3.0\x64\v.exe fmt -verify .
+          C:\hostedtoolcache\windows\v\0.3.0\x64\v.exe symlink
 
   build:
     strategy:
