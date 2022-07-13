@@ -8,9 +8,9 @@ on:
 
 jobs:
 
-  tests-sanitize-address-msvc:
+  windows-build:
     runs-on: windows-2019
-      env:
+    env:
         VFLAGS: -cc msvc
         VJOBS: 1
         VTEST_SHOW_START: 1
