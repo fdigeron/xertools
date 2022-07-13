@@ -22,7 +22,8 @@ mut:
 fn main() {
 	mut pre_built_str := ''
 	$if prebuilt ? {
-		pre_built_str = '[pre-built binary release (##DATE##)]\n'
+		build_date := $env('DATE')
+		pre_built_str = '[pre-built binary release ($build_date)]\n'
 	}
 
 	mut fp := flag.new_flag_parser(os.args)
