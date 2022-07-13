@@ -32,6 +32,12 @@ jobs:
         run: |
           C:\hostedtoolcache\windows\v\0.3.0\x64\v.exe symlink
 
+      - name: Copy SQLite files for Windows compile
+        working-directory: thirdparty
+        run: |
+            mkdir -p C:\hostedtoolcache\windows\v\0.3.0\x64\thirdparty\sqlite
+            cp * C:\hostedtoolcache\windows\v\0.3.0\x64\thirdparty\sqlite
+
       - name: Build
         run: |
           v -prod -cc msvc src/xerdiff.v -o xerdiff.exe
@@ -101,14 +107,14 @@ jobs:
         env:
           VJOBS: 1
 
-      - name: Install MinGW for cross-compile
-        run: sudo apt-get install gcc-mingw-w64-x86-64
+      #- name: Install MinGW for cross-compile
+      #  run: sudo apt-get install gcc-mingw-w64-x86-64
 
-      - name: Copy SQLite files for Windows cross-compile
-        working-directory: thirdparty
-        run: |
-            mkdir -p /opt/hostedtoolcache/v/0.3.0/x64/thirdparty/sqlite/
-            cp * /opt/hostedtoolcache/v/0.3.0/x64/thirdparty/sqlite/
+      #- name: Copy SQLite files for Windows cross-compile
+      #  working-directory: thirdparty
+      #  run: |
+      #      mkdir -p /opt/hostedtoolcache/v/0.3.0/x64/thirdparty/sqlite/
+      #      cp * /opt/hostedtoolcache/v/0.3.0/x64/thirdparty/sqlite/
 
       - name: Make production binaries
         working-directory: src
