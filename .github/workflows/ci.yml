@@ -74,3 +74,8 @@ jobs:
             xerdiff
             xerpred
             xer2json
+            xertask.exe
+            xerdump.exe
+            xerdiff.exe
+            xerpred.exe
+            xer2json.exe
