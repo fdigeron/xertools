@@ -213,7 +213,6 @@ fn analyze_drivers(mut drivers_arr []Driver) {
 	mut driver_det_map := map[string]map[string][]Driver_detail{}
 	mut driver_cnt_map := map[string]map[string]int{}
 
-	// println(drivers_arr)
 	for elem in drivers_arr {
 		drivers_map[elem.xer_name][elem.task_code] << elem.driver_code
 
