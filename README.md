@@ -72,7 +72,7 @@ All utilities can be updated via the command line.  This will check the Releases
 
 **Input:** Two or more .xer files
 
-**Output:** xerdiff.txt, in the same directory as xerdiff.exe
+**Output:** `xerdiff_output.txt`, in the same directory as xerdiff.exe
 
 **Optional Command Line Arguments** 
 
@@ -97,9 +97,9 @@ Options:
 
 *Append mode:* :: xerdump will create 1 folder named 'combined' and extract all tables in the xers (i.e. ACTVCODE, ACTVTYPE, TASK, etc...) to respective .txt files; appending to them for each xer. 
 
-*Consolidated mode:* :: xerdump will create a file 'xerdump_consolidated.txt' with all possible combinations of ACTVTYPE, ACTVCODE and TASK.
+*Consolidated mode:* :: xerdump will create a file `xerdump_consolidated.txt` with all possible combinations of ACTVTYPE, ACTVCODE and TASK.
 
-*SQL mode:* :: xerdump will create a database 'primavera.db' with all the tables from all the XERs dumped
+*SQL mode:* :: xerdump will create a database `primavera.db` with all the tables from all the XERs dumped
 
 **Optional Command Line Arguments** 
 
@@ -123,7 +123,7 @@ Options:
 
 **Input:** One or more .xer files
 
-**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to 'xertask_analytics.txt'.
+**Output:** Outputs to standard output the requested columns along with the requested unpivot columns.  Or in analytics mode (specified with -a flag), will output analytical data to `xertask_analytics.txt`.
 
 **Optional Command Line Arguments** 
 
@@ -236,9 +236,9 @@ Along with two additional columns of the unpivot header and values for
 
 **Output:** 
 
-*Predecessors mode:* :: Outputs to 'xerpred_predecessors.txt' the complete list of predecessors to the specified depth level [default depth of 5].
+*Predecessors mode:* :: Outputs to `xerpred_predecessors.txt` the complete list of predecessors to the specified depth level [default depth of 5].
 
-*Drivers mode:* :: Output the list of schedule drivers to 'xerpred_drivers.txt' and 'xerpred_drivers_analysis.txt'
+*Drivers mode:* :: Output the list of schedule drivers to `xerpred_drivers.txt` and `xerpred_drivers_analysis.txt`.
 
 **Optional Command Line Arguments** 
 
