@@ -53,6 +53,9 @@ jobs:
       - name: Make Binary
         run: v src/xertask.v -o xertask
   
+      - name: GH Release
+        uses: softprops/action-gh-release@v0.1.14
+
       - name: release
         uses: actions/create-release@v1
         id: create_release
@@ -61,7 +64,6 @@ jobs:
           prerelease: false
           release_name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
