@@ -63,7 +63,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				}).hex()
 
 				// on linux need to change to execute permssion, if it fails
-				// set md5_new to "" so next conditions fail.
+				// set md5_new to "" so next conditions fail further down.
 				$if linux {
 					os.chmod(file, 0o755) or { md5_new = '' }
 				}
