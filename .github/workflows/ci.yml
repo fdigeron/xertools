@@ -16,12 +16,12 @@ jobs:
         VTEST_SHOW_START: 1
     steps:
       - uses: vlang/setup-v@v1
-      - name: Build
-        run: |
-          echo %VFLAGS%
-          echo $VFLAGS
-          .\make.bat -msvc
-          .\v.exe self
+     # - name: Build
+     #   run: |
+     #     echo %VFLAGS%
+     #     echo $VFLAGS
+     #     .\make.bat -msvc
+     #     .\v.exe self
       - name: Ensure code is well formatted
         run: |
           .\v.exe fmt -verify .
