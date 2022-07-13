@@ -24,7 +24,7 @@ jobs:
      #     .\v.exe self
       - name: Ensure code is well formatted
         run: |
-          .\v.exe fmt -verify .
+          C:\hostedtoolcache\windows\v\0.3.0\x64\v.exe fmt -verify .
 
   build:
     strategy:
