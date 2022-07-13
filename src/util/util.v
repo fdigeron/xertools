@@ -6,7 +6,7 @@ import crypto.md5
 import encoding.base64
 import readline
 
-pub fn github_update(username string, repo string, file string) {
+pub fn github_update(username string, repo string, file string, force_update bool) {
 	println('Checking for updates... ')
 
 	md5_curr := md5.sum(os.read_bytes(os.args[0]) or {
@@ -25,12 +25,16 @@ pub fn github_update(username string, repo string, file string) {
 		println('MD5 latest:  $md5_latest')
 
 		if compare_strings(md5_curr, md5_latest) != 0 {
-			mut user_in := readline.read_line('An update is available, download now? [y/N] ') or {
-				println('Error checking for update. Aborting.')
-				return
+			mut user_in := ''
+
+			if !force_update {
+				user_in = readline.read_line('An update is available, download now? [y/N] ') or {
+					println('Error checking for update. Aborting.')
+					return
+				}
 			}
 
-			if compare_strings(user_in, 'y\n') == 0 {
+			if compare_strings(user_in, 'y\n') == 0 || force_update == true {
 				print('[1/4] Backing up old version... ')
 				os.mv('$file', '${file}.bak') or {
 					println("[FAIL]\nError moving file '$file'. Aborting")

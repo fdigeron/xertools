@@ -22,6 +22,7 @@ fn main() {
 	fp.skip_executable()
 
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
+	force_update_arg := fp.bool('force-update', `z`, false, 'check for tool updates, auto-install if available')
 
 	additional_args := fp.finalize() or {
 		eprintln(err)
@@ -32,12 +33,15 @@ fn main() {
 	additional_args.join_lines()
 
 	if update_arg {
-		$if linux {
-			util.github_update('chipnetics', 'xertools', 'xer2json')
-		} $else {
-			util.github_update('chipnetics', 'xertools', 'xer2json.exe')
+		mut force_mode := false
+		if force_update_arg {
+			force_mode = true
 		}
-
+		$if linux {
+			util.github_update('chipnetics', 'xertools', 'xer2json', force_mode)
+		} $else {
+			util.github_update('chipnetics', 'xertools', 'xer2json.exe', force_mode)
+		}
 		return
 	}
 
