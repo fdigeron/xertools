@@ -51,8 +51,9 @@ jobs:
           VJOBS: 1
 
       - name: Make production binaries
+        working-directory: src
         run: |
-        ./src/build.sh
+            build.sh
   
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
