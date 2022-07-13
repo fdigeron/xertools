@@ -83,11 +83,11 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				print('[4/4] Deleting old version...')
 				$if linux {
 					os.rm('${file}.bak') or {
-						println("[FAIL]\nError deleting file '${file}.bak'. Delete manually.")
+						println("\t\t[FAIL]\nError deleting file '${file}.bak'. Delete manually.")
 						return
 					}
 				} $else {
-					println('[Must delete manually in Windows]')
+					println('\t\t[Must delete manually in Windows]')
 					return
 				}
 				println('\t\t[DONE]')
