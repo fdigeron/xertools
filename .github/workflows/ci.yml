@@ -15,10 +15,7 @@ jobs:
         VJOBS: 1
         VTEST_SHOW_START: 1
     steps:
-      - uses: vlang/checkout@v2
-      - uses: vlang/setup-node@v1
-        with:
-          node-version: 12.x
+      - uses: vlang/setup-v@v1
       - name: Build
         run: |
           echo %VFLAGS%
