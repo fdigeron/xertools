@@ -15,17 +15,17 @@ DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerpred.v -o ../xerpred
 echo "building xer2json (linux)..."
 DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xer2json.v -o ../xer2json
 
-echo "building xerdiff (windows)..."
-DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerdiff.v -os windows -o ../xerdiff
+#echo "building xerdiff (windows)..."
+#DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerdiff.v -os windows -o ../xerdiff
 
-echo "building xerdump (windows)..."
-DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerdump.v -os windows -o ../xerdump
+#echo "building xerdump (windows)..."
+#DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerdump.v -os windows -o ../xerdump
 
-echo "building xertask (windows)..."
-DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xertask.v -os windows -o ../xertask
+#echo "building xertask (windows)..."
+#DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xertask.v -os windows -o ../xertask
 
-echo "building xerpred (windows)..."
-DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerpred.v -os windows -o ../xerpred
+#echo "building xerpred (windows)..."
+#DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerpred.v -os windows -o ../xerpred
 
-echo "building xer2json (windows)..."
-DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xer2json.v -os windows -o ../xer2json
+#echo "building xer2json (windows)..."
+#DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xer2json.v -os windows -o ../xer2json
