@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        os: ["ubuntu-latest"]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -25,11 +25,26 @@ jobs:
           v fmt -diff .
           v fmt -verify .
       
-      - name: Build ${{ github.event.repository.name }}
-        run: |
+      - name: Build ${{ github.event.repository.name }} - xerdump
+        run:
           v src/xerdump.v
+
+      - name: Build ${{ github.event.repository.name }} - xerdiff
+        run:
           v src/xerdiff.v
 
+      - name: Build ${{ github.event.repository.name }} - xertask
+        run:
+          v src/xertask.v
+
+      - name: Build ${{ github.event.repository.name }} - xerpred
+        run:
+          v src/xerpred.v
+
+      - name: Build ${{ github.event.repository.name }} - xer2json
+        run:
+          v src/xer2json.v
+         
       - name: Run Tests
         run: v test .
         env:
