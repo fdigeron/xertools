@@ -52,7 +52,6 @@ jobs:
 
       - name: Make production binaries
         run: |
-        cd src
         ./src/build.sh
   
       - name: GH Release
