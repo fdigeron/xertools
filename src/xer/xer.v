@@ -267,7 +267,7 @@ pub fn parse_project(xer_file string) ?map[string]XER_project {
 // Parses TASKPRED from an XER file, and returns a map of the line items
 // in TASKPRED with key task_pred_id.
 pub fn parse_pred(xer_file string) ?map[string]XER_pred {
-	lines := os.read_lines(xer_file) or {return error('Filename $xer_file not found.') }
+	lines := os.read_lines(xer_file) or { return error('Filename $xer_file not found.') }
 	mut line_index := 0
 	mut delimited_row := []string{}
 	mut xer_table := map[string]XER_pred{}

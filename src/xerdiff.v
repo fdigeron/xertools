@@ -20,7 +20,7 @@ fn main() {
 	fp.description('\nPrints the difference between 2 or more XER files.\nThis software will -NOT- make any changes to your XER files.')
 
 	fp.skip_executable()
-	
+
 	xer_arg := fp.string('xerlist', `f`, '', 'specify a file with a list of XER files to process')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 
@@ -49,8 +49,11 @@ fn main() {
 	}
 
 	// File with a list of XER filenames was specified...
-	if xer_arg.len >0 {
-		xer_file_list := os.read_lines(xer_arg) or { println("Error. Could not open '$xer_arg' to get XER list. Aborting") return }
+	if xer_arg.len > 0 {
+		xer_file_list := os.read_lines(xer_arg) or {
+			println("Error. Could not open '$xer_arg' to get XER list. Aborting")
+			return
+		}
 		for file in xer_file_list {
 			if file.ends_with('.xer') {
 				xer_files << file
@@ -60,28 +63,30 @@ fn main() {
 
 	// Some non-consumed flag args remain...
 	// Add them to xer_files if they are XERs (even if we specified some with -f)
-	if fp.args.len >0 {
+	if fp.args.len > 0 {
 		// remaining non flag args are files (or should be)
 		for file in fp.args {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
-
 	}
 
 	// All fp args were consumed....
 	// No XER list of files was specified....
 	// So do all XERs in directory
-	if fp.args.len == 0 && xer_arg.len==0 {
-		dir_elems := os.ls('.') or { println("Could not get list of files in directory. Aborting") return }
+	if fp.args.len == 0 && xer_arg.len == 0 {
+		dir_elems := os.ls('.') or {
+			println('Could not get list of files in directory. Aborting')
+			return
+		}
 		for file in dir_elems {
 			if file.ends_with('.xer') {
 				xer_files << file
 			}
 		}
 		xer_files.sort()
-	} 
+	}
 
 	if xer_files.len < 2 {
 		println('Require two .xer files to compare.')
@@ -112,8 +117,14 @@ fn main() {
 
 		println('[Analyzing]  ${xer_files[index]} against ${xer_files[index + 1]}')
 
-		xer_1 := xer.parse_task(xer_files[index]) or {eprintln("[ERROR] Could not parse TASK table in ${xer_files[index]}. Skipping.") continue}
-		xer_2 := xer.parse_task(xer_files[index + 1]) or {eprintln("[ERROR] Could not parse TASK table in ${xer_files[index+1]}. Skipping.") continue}
+		xer_1 := xer.parse_task(xer_files[index]) or {
+			eprintln('[ERROR] Could not parse TASK table in ${xer_files[index]}. Skipping.')
+			continue
+		}
+		xer_2 := xer.parse_task(xer_files[index + 1]) or {
+			eprintln('[ERROR] Could not parse TASK table in ${xer_files[index + 1]}. Skipping.')
+			continue
+		}
 
 		xer_1_keys := xer_1.keys()
 		xer_2_keys := xer_2.keys()
