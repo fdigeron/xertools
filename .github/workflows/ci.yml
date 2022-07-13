@@ -57,6 +57,11 @@ jobs:
         working-directory: src
         run: |
             ./build.sh
+
+      - name: Copy SQLite files for Windows cross-compile
+        working-directory: thirdparty
+        run: |
+            cp * /opt/hostedtoolcache/v/0.3.0/x64/thirdparty/sqlite/
   
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
