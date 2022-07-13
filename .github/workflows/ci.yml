@@ -24,8 +24,11 @@ jobs:
         run: |
           v fmt -diff .
           v fmt -verify .
+      
       - name: Build ${{ github.event.repository.name }}
-        run: v .
+        run: |
+          v xerdump.v
+          v xerdiff.v
 
       - name: Run Tests
         run: v test .
