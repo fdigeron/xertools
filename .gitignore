@@ -2,7 +2,6 @@
 src/*.xer
 src/*.exe
 src/*.txt
-src/*.bat
 src/*.db
 src/*.db-journal
 src/xertask
