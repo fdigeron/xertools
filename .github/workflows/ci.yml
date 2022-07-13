@@ -16,17 +16,17 @@ jobs:
   steps:
     - uses: vlang/checkout@v2
     - uses: vlang/setup-node@v1
-        with:
-          node-version: 12.x
+      with:
+        node-version: 12.x
     - name: Build
-        run: |
-          echo %VFLAGS%
-          echo $VFLAGS
-          .\make.bat -msvc
-          .\v.exe self
+      run: |
+        echo %VFLAGS%
+        echo $VFLAGS
+        .\make.bat -msvc
+        .\v.exe self
     - name: Ensure code is well formatted
-        run: |
-          .\v.exe fmt -verify .
+      run: |
+        .\v.exe fmt -verify .
 
   build:
     strategy:
