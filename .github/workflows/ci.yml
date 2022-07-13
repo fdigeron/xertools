@@ -51,12 +51,11 @@ jobs:
           VJOBS: 1
 
       - name: Make Binary
-        run: |
-          v -prod src/xertask.v -o xertask
-          v -prod src/xerdump.v -o xerdump
-          v -prod src/xerdiff.v -o xerdiff
-          v -prod src/xerpred.v -o xerpred
-          v -prod src/xer2json.v -o xer2json
+        run: v -prod src/xertask.v -o xertask
+        run: v -prod src/xerdump.v -o xerdump
+        run: v -prod src/xerdiff.v -o xerdiff
+        run: v -prod src/xerpred.v -o xerpred
+        run: v -prod src/xer2json.v -o xer2json
   
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
