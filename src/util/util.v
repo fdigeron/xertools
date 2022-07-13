@@ -6,6 +6,8 @@ import crypto.md5
 import encoding.base64
 import readline
 
+// Check the releases section on Github and compares hashes if an
+// update is available.
 pub fn github_update(username string, repo string, file string, force_update bool) {
 	println('Checking for updates... ')
 
