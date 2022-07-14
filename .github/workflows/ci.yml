@@ -41,10 +41,11 @@ jobs:
           v -prod -cc msvc src/xerdump.v -o xerdump.exe
           v -prod -cc msvc src/xerpred.v -o xerpred.exe
           v -prod -cc msvc src/xer2json.v -o xer2json.exe
+          v -prod -cc msvc src/sqlrunner.v -o sqlrunner.exe
 
       - name: Make zip
         run: |
-          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe xertools_latest_win64.zip
+          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe,sqlrunner.exe xertools_latest_win64.zip
 
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
@@ -56,6 +57,7 @@ jobs:
             xerdiff.exe
             xerpred.exe
             xer2json.exe
+            sqlrunner.exe
             xertools_latest_win64.zip
 
   build:
@@ -131,4 +133,5 @@ jobs:
             xerdiff
             xerpred
             xer2json
+            sqlrunner
             xertools_latest_linux.zip

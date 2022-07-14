@@ -15,6 +15,9 @@ DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerpred.v -o ../xerpred
 echo "building xer2json (linux)..."
 DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xer2json.v -o ../xer2json
 
+echo "building sqlrunner (linux)..."
+DATE=$(date +%Y-%m-%d) v -prod -d prebuilt sqlrunner.v -o ../sqlrunner
+
 #echo "building xerdiff (windows)..."
 #DATE=$(date +%Y-%m-%d) v -prod -d prebuilt xerdiff.v -os windows -o ../xerdiff
 
