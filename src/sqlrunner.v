@@ -21,6 +21,7 @@ fn main() {
 
 	database_arg := fp.string('database', `d`, '', 'specify SQLite database')
 	sql_arg := fp.string('sqllist', `f`, '', 'specify a file with a list of SQL commands to process')
+	output_arg := fp.string('output', `o`, '', 'specify the output folder for query results. [Default: current]')
 	update_arg := fp.bool('update', `u`, false, 'check for tool updates')
 	force_update_arg := fp.bool('force-update', `z`, false, 'check for tool updates, auto-install if available')
 
@@ -93,14 +94,19 @@ fn main() {
 	}
 
 	println('Processing SQL files...         ')
-	process_sql_arr(sql_files, database_arg)
+	process_sql_arr(sql_files, database_arg, output_arg)
 	println('[DONE]')
 }
 
-fn process_sql_arr(sql_files []string, database string) {
+fn process_sql_arr(sql_files []string, database string,output_arg string) {
 	db := sqlite.connect(database) or {
 		println("[ERROR]\nCould not open database named '$database'.")
 		return
+	}
+
+	if output_arg.len > 0 {
+		os.mkdir(output_arg) or { eprintln("[ERROR] Could not make folder '$output_arg' in present directory. Aborting.")
+		return}
 	}
 
 	for sql_file in sql_files {
@@ -136,7 +142,7 @@ fn process_sql_arr(sql_files []string, database string) {
 				sql_txt = '${os.file_name(sql_file).all_before_last('.')}.txt'
 			}
 
-			mut fout := os.create(sql_txt) or {
+			mut fout := os.create("${output_arg}/$sql_txt") or {
 				eprintln('[ERROR] Could not create output txt file. Skipping.')
 				continue
 			}
