@@ -66,7 +66,7 @@ fn main() {
 		}
 	}
 
-	// Some non-consumed flag args remain...
+	// Some non-consumed flag args remain....
 	// Add them to sql_files if they are sqls (even if we specified some with -f)
 	if fp.args.len > 0 {
 		// remaining non flag args are files (or should be)

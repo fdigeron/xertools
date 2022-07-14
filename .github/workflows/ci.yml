@@ -45,7 +45,7 @@ jobs:
 
       - name: Make zip
         run: |
-          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe,sqlrunner.exe xertools_latest_win64.zip
+          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe,sqlrunner.exe,examples,README.md,LICENSE xertools_latest_win64.zip
 
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
@@ -125,7 +125,7 @@ jobs:
 
       - name: Make zips
         run: |
-            zip xertools_latest_linux.zip xerdiff xerdump xertask xerpred xer2json
+            zip -r xertools_latest_linux.zip xerdiff xerdump xertask xerpred xer2json examples/ LICENSE README.md
 
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
