@@ -39,10 +39,17 @@ pub fn github_update(username string, repo string, file string, force_update boo
 			if compare_strings(user_in, 'y\n') == 0 || compare_strings(user_in, 'y\r\n') == 0
 				|| force_update == true {
 				print('[1/4] Backing up old version... ')
-				// Remove any existing backup (in Windows can't mv if exists)
-				// Probably should be changed in vlib...
-				os.rm('${file}.bak') or {}
-				os.mv('$file', '${file}.bak') or {
+				// Create bak folder for storing backups of executables
+				if os.exists('bak') == false {
+					os.mkdir('bak') or {
+						println("[FAIL]\nError making backup directory 'bak'. Aborting")
+						return
+					}
+				}
+				// Remove exising bak file (if exists) as cannot move to existing file
+				// in windows. (Linux is fine).
+				os.rm('bak/${file}.bak') or {}
+				os.mv('$file', 'bak/${file}.bak') or {
 					println("[FAIL]\nError moving file '$file'. Aborting")
 					return
 				}
@@ -85,7 +92,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 				// is the active file in Task Manager; so it cannot delete a running process.
 				print('[4/4] Deleting old version...')
 				$if linux {
-					os.rm('${file}.bak') or {
+					os.rmdir_all('bak') or {
 						println("\t\t[FAIL]\nError deleting file '${file}.bak'. Delete manually.")
 						return
 					}
