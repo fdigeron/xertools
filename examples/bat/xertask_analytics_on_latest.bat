@@ -1,0 +1,1 @@
+xertask.exe --analytics

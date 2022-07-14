@@ -1,0 +1,1 @@
+xerdump.exe --consolidated

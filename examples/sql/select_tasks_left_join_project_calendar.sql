@@ -1,0 +1,1 @@
+select TASK.task_name,CALENDAR.clndr_name from TASK left join CALENDAR on TASK.clndr_id = CALENDAR.clndr_id where CALENDAR.clndr_name<>"";

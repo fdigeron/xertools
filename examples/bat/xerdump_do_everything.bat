@@ -1,0 +1,1 @@
+xerdump.exe --individual --append --consolidated --sql

@@ -1,0 +1,1 @@
+select * from TASK where total_float_hr_cnt < 100 and total_float_hr_cnt > 0;
