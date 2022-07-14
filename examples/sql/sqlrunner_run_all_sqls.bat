@@ -1,1 +1,1 @@
-sqlrunner.exe -d primavera.db
+sqlrunner.exe -d primavera.db -o results
