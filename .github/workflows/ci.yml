@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    #paths:
-    #  - "**.v"
+    paths:
+      - "**.v"
     branches: [main]
 
 jobs:
@@ -99,6 +99,10 @@ jobs:
       - name: Build ${{ github.event.repository.name }} - xer2json
         run:
           v src/xer2json.v
+
+      - name: Build ${{ github.event.repository.name }} - sqlrunner
+        run:
+          v src/sqlrunner.v
          
       - name: Run Tests
         run: v test .
