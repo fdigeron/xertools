@@ -98,15 +98,14 @@ fn main() {
 	println('[DONE]')
 }
 
-fn process_sql_arr(sql_files []string, database string,output_arg string) {
+fn process_sql_arr(sql_files []string, database string, output_arg string) {
 	db := sqlite.connect(database) or {
 		println("[ERROR]\nCould not open database named '$database'.")
 		return
 	}
 
 	if output_arg.len > 0 {
-		os.mkdir(output_arg) or { eprintln("[ERROR] Could not make folder '$output_arg' in present directory. Aborting.")
-		return}
+		os.mkdir(output_arg) or {}
 	}
 
 	for sql_file in sql_files {
@@ -123,7 +122,8 @@ fn process_sql_arr(sql_files []string, database string,output_arg string) {
 		// for each.
 		mut sql_txt := ''
 		for idx, line in sql_cmd_lines {
-			if line.len == 0 {
+			// Short line, probably carriage returns/newlines
+			if line.len <= 3 {
 				continue
 			}
 
@@ -142,7 +142,12 @@ fn process_sql_arr(sql_files []string, database string,output_arg string) {
 				sql_txt = '${os.file_name(sql_file).all_before_last('.')}.txt'
 			}
 
-			mut fout := os.create("${output_arg}/$sql_txt") or {
+			mut folder_pre := ''
+			if output_arg.len > 0 {
+				folder_pre = '$output_arg/'
+			}
+
+			mut fout := os.create('$folder_pre$sql_txt') or {
 				eprintln('[ERROR] Could not create output txt file. Skipping.')
 				continue
 			}
