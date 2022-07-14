@@ -14,6 +14,7 @@ jobs:
         VFLAGS: -cc msvc
         VJOBS: 1
         VTEST_SHOW_START: 1
+        DATE: date /t
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v2
@@ -35,11 +36,11 @@ jobs:
 
       - name: Build
         run: |
-          v -prod -cc gcc src/xerdiff.v -o xerdiff.exe
-          v -prod -cc gcc src/xertask.v -o xertask.exe
-          v -prod -cc gcc src/xerdump.v -o xerdump.exe
-          v -prod -cc gcc src/xerpred.v -o xerpred.exe
-          v -prod -cc gcc src/xer2json.v -o xer2json.exe
+          v -prod -cc msvc src/xerdiff.v -o xerdiff.exe
+          v -prod -cc msvc src/xertask.v -o xertask.exe
+          v -prod -cc msvc src/xerdump.v -o xerdump.exe
+          v -prod -cc msvc src/xerpred.v -o xerpred.exe
+          v -prod -cc msvc src/xer2json.v -o xer2json.exe
 
       - name: Make zip
         run: |
