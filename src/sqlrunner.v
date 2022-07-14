@@ -53,7 +53,7 @@ fn main() {
 
 	mut sql_files := []string{}
 
-	// File with a list of sql filenames was specified....
+	// File with a list of sql filenames was specified.....
 	if sql_arg.len > 0 {
 		sql_file_list := os.read_lines(sql_arg) or {
 			println("Error. Could not open '$sql_arg' to get sql list. Aborting")
