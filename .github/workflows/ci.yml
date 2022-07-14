@@ -34,6 +34,11 @@ jobs:
             mkdir -p C:\hostedtoolcache\windows\v\0.3.0\x64\thirdparty\sqlite
             cp * C:\hostedtoolcache\windows\v\0.3.0\x64\thirdparty\sqlite
 
+      - name: Download SQLite GUI
+        run: |
+            curl -L -O https://github.com/little-brother/sqlite-gui/releases/download/1.7.5/sqlite-gui.1.7.5-x64.zip
+            7z x sqlite-gui.1.7.5-x64.zip
+
       - name: Build
         run: |
           v -prod -cc msvc src/xerdiff.v -o xerdiff.exe
@@ -45,7 +50,7 @@ jobs:
 
       - name: Make zip
         run: |
-          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe,sqlrunner.exe,examples,README.md,LICENSE xertools_latest_win64.zip
+          powershell Compress-Archive xertask.exe,xerdiff.exe,xerdump.exe,xerpred.exe,xer2json.exe,sqlrunner.exe,examples,README.md,LICENSE,sqlite3.dll,sqlite-gui.exe,extensions xertools_latest_win64.zip
 
       - name: GH Release
         uses: softprops/action-gh-release@v0.1.14
