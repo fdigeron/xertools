@@ -39,6 +39,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 			if compare_strings(user_in, 'y\n') == 0 || compare_strings(user_in, 'y\r\n') == 0
 				|| force_update == true {
 				print('[1/4] Backing up old version... ')
+
 				// Create bak folder for storing backups of executables
 				if os.exists('bak') == false {
 					os.mkdir('bak') or {
@@ -46,6 +47,7 @@ pub fn github_update(username string, repo string, file string, force_update boo
 						return
 					}
 				}
+
 				// Remove exising bak file (if exists) as cannot move to existing file
 				// in windows. (Linux is fine).
 				os.rm('bak/${file}.bak') or {}

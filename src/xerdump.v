@@ -138,7 +138,6 @@ fn generate_individuals(xer_files []string) {
 		dir_name := os.file_name(xer_files[index].all_before_last('.xer'))
 
 		os.mkdir(dir_name) or {} // Okay if dir exists.
-
 		mut line_index := 0
 		mut table_header := ''
 
@@ -199,7 +198,13 @@ fn generate_appended(xer_files []string) {
 						file_out.close()
 						break
 					}
-					file_out.writeln('$filename\t${lines[j]}') or {}
+
+					// Is the first line (the header); so first element should be xer_file.
+					if j == line_index {
+						file_out.writeln('xer_file\t${lines[j]}') or {}
+					} else {
+						file_out.writeln('$filename\t${lines[j]}') or {}
+					}
 				}
 			}
 		}
@@ -212,6 +217,12 @@ fn generate_master_table(xer_files []string) {
 	defer {
 		file_out.close()
 	}
+
+	file_out.write_string('xer_file\tactv_code_type\tactv_code_name\tshort_name\t') or {
+		panic(err)
+	}
+
+	file_out.writeln(xer.task_header().all_after('xer_filename\t')) or { panic(err) }
 
 	for xer_file in xer_files {
 		map_actvtype := xer.parse_actvtype(xer_file) or {
